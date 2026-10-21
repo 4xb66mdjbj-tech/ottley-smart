@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ottley · launching</title>
+<style>body{font:16px system-ui,sans-serif;margin:0;display:grid;place-items:center;min-height:100vh;background:#e9eff6;color:#0f1b2d}@media (prefers-color-scheme:dark){body{background:#0a1220;color:#eaf0f8}}</style></head>
+<body><p id="m">Ottley is connecting to the EHR…</p>
+<script src="fhir-client.min.js"></script>
+<script>
+FHIR.oauth2.authorize({
+  clientId: new URLSearchParams(location.search).get("client_id") || "ottley-demo",
+  scope: "launch launch/patient openid fhirUser patient/Patient.read patient/MedicationRequest.read patient/MedicationStatement.read patient/AllergyIntolerance.read patient/Observation.read",
+  redirectUri: "index.html"
+}).catch(e=>{document.getElementById("m").textContent="Launch failed: "+(e.message||e)+". Open this page from the EHR or SMART launcher, which adds ?iss= and &launch=.";});
+</script></body></html>
