@@ -747,10 +747,13 @@ function fromFHIR(bundle,pid,label){
   const al=R.filter(r=>r.resourceType==="AllergyIntolerance").map(a=>(a.code&&(a.code.text||(a.code.coding||[{}])[0].display))||"Unnamed allergy");
   const toKg=q=>/lb|\[lb_av\]/i.test(q.unit||q.code||"")?Math.round(q.value/2.20462*10)/10:q.value,toCm=q=>/in|\[in_i\]/i.test(q.unit||q.code||"")?Math.round(q.value*2.54):q.value;
   const hr=[...new Set(meds.map(hrOf).filter(Boolean))];
-  return{id:pid,label:(nm||"Unnamed")+" (synthetic)",live:true,age,sex,why:label,arr:"now",risk:Math.min(10,Math.max(3,Math.round(age/14+meds.length/2+hr.length))),factors:[age+" y",meds.length+" meds"].concat(hr.map(h=>h.toLowerCase())),
+  const inact=R.filter(r=>(r.resourceType==="MedicationRequest"||r.resourceType==="MedicationStatement")&&r.status!=="active"&&r.status!=="entered-in-error").sort((a,b)=>when(b).localeCompare(when(a)));
+  const fmtD=d=>d?d.slice(5,7)+"/"+d.slice(0,4):"undated";
+  const recNote=meds.length?null:{big:inact.length?"No active prescriptions in the record":"No prescriptions in the record",sub:(inact.length?inact.length+" inactive ("+inact.slice(0,3).map(r=>mname(r)+", "+(r.status||"inactive")+" "+fmtD(when(r))).join("; ")+(inact.length>3?"; …":"")+"). ":"")+"The record alone can't tell you what "+(sex==="M"?"he takes":sex==="F"?"she takes":"the patient takes")+" now. Interview the patient or caregiver and check fill history."};
+  return{id:pid,label:(nm||"Unnamed")+" (synthetic)",live:true,age,sex,why:label,arr:"now",risk:Math.min(10,Math.max(3,Math.round(age/14+meds.length/2+hr.length))),factors:[age+" y",meds.length+" active meds"].concat(inact.length?[inact.length+" inactive"]:[]).concat(hr.map(h=>h.toLowerCase())),
     dobDemo:pt.birthDate||"",allergy:al.length?al.join(", ")+" · from the record":"None returned by the record · ask the patient",
     contact:{who:"Family (example)",status:"none",log:[]},srcIn:[],srcFull:{cg:"Family"},
-    outside:[{k:"ehr",res:meds.length?"found":"none",f:meds0.length+" active prescriptions · "+(al.length?al.length+" allergies":"no allergy entries")+(ow?" · weight "+when(ow):"")},{k:"drf",res:"na",why:"Not connected in this sandbox test"},{k:"ce",res:"na",why:"Not connected in this sandbox test"},{k:"pdmp",res:"na",why:"Not connected in this sandbox test"}],
+    pop:recNote?{rec:recNote}:{},outside:[{k:"ehr",res:meds.length?"found":"none",f:meds0.length+" active prescriptions"+(inact.length?", "+inact.length+" inactive":"")+" · "+(al.length?al.length+" allergies":"no allergy entries")+(ow?" · weight "+when(ow):"")},{k:"drf",res:"na",why:"Not connected in this sandbox test"},{k:"ce",res:"na",why:"Not connected in this sandbox test"},{k:"pdmp",res:"na",why:"Not connected in this sandbox test"}],
     fhirW:ow?{kg:toKg(ow.valueQuantity),date:when(ow)}:null,hRec:oh?{prior:{cm:toCm(oh.valueQuantity),at:"Earlier visit "+when(oh)+" · measured (FHIR)"}}:{},
     meds,cgDemo:{},hNA:{ce:true,id:true},attNoteDef:"Completed from the EHR record only (sandbox test)"};}
 function sandboxPatients(){const o=[fromFHIR(SANDBOX_BUNDLE,"Z","sandbox record")];LOADED.forEach((b,i)=>{try{o.push(fromFHIR(b.bundle,"Z"+(i+2),"loaded from "+b.name));}catch(e){}});return o;}
@@ -870,6 +873,7 @@ function calcLine(p,m,val){const w=pedsW(p);if(!w)return"";const d=mgOf(m,val);i
 function popBans(p){const o=[],q=p.pop||{};
   if(q.peds){const w=wOf(p),ms=w&&w.how==="measured";
     o.push({big:"Pediatric · "+p.age+" y",tone:ms?"t-pop":"t-warn",w:w?(w.kg+" kg"+(w.txt?" ("+w.txt+")":"")):"No weight",wtag:w?(ms?"measured "+w.at+" · "+w.by:"stated by "+w.by+" · not measured"):"enter a weight",wc:ms?"":"var(--warn)",sub:ms?"Weight-based dosing. Every liquid shows mL, mg and mg/kg. Ask by name: rescue meds, inhalers, fever medicines, vitamins.":"Get a measured weight before any dose is verified. Doses below are calculated on the stated weight.",btn:!ms?'<span class="went"><label class="vh" for="wIn">Measured weight in kg</label><input id="wIn" type="number" step="0.1" min="0" inputmode="decimal" placeholder="kg" style="width:90px;border:1.5px solid var(--line);border-radius:8px;padding:5px 8px"><label class="vh" for="wMeth">How measured</label><select id="wMeth" style="border:1.5px solid var(--line);border-radius:8px;padding:5px 8px"><option value="">How measured?</option><option>standing scale</option><option>infant scale</option><option>bed scale</option></select><button type="button" class="sm fill" data-wsave="'+p.id+'">Save measured weight</button></span>'+(p.wErr?'<span class="tag t-bad">'+esc(p.wErr)+"</span>":""):""});}
+  if(q.rec)o.push({big:q.rec.big,tone:"t-warn",sub:q.rec.sub});
   if(q.preg)o.push({big:"Pregnant · "+q.preg.wks+" weeks",tone:"t-pop",sub:"Check every new order for pregnancy. Prenatal vitamins and low-dose aspirin are the usual misses. L&D is aware."});
   if(q.post)o.push({big:"Postpartum day "+q.post.day+(q.post.bf?" · breastfeeding":""),tone:"t-pop",sub:"Meds started at delivery discharge may not be in fill history yet."});
   if(q.surg)o.push({big:"Direct admit from surgery",tone:"t-pop",sub:"No ED med history was done ("+q.surg.from+"). Find what was held before surgery and the last dose of each."});
@@ -1675,9 +1679,9 @@ S=base("mixed");goStep(0);
     let user="";try{user=client.getFhirUser()||"";}catch(e){}
     const ctx={iss:client.state.serverUrl,pid,user,enc:client.encounter.id||"",notes};
     window.__ottleySmart({resourceType:"Bundle",type:"collection",entry},"SMART launch · "+nm,ctx);
-    const cnt=entry.length-1;
+    const cnt=entry.length-1,act=entry.filter(e=>/^Medication(Request|Statement)$/.test(e.resource.resourceType)&&e.resource.status==="active").length,inact=entry.filter(e=>/^Medication(Request|Statement)$/.test(e.resource.resourceType)&&e.resource.status!=="active").length;
     bar.style.background="var(--good-soft,#dbf4e6)";bar.style.color="var(--good,#11864a)";bar.style.borderColor="var(--good,#11864a)";
-    bar.textContent="Launched inside the EHR via SMART on FHIR · "+client.state.serverUrl.replace(/^https?:\/\//,"")+" · patient "+pid+(ctx.enc?" · encounter "+ctx.enc:"")+(user?" · user "+user:"")+" · "+cnt+" FHIR resources read"+(notes.length?" · not available: "+notes.join("; "):"")+". Synthetic sandbox data.";
+    bar.textContent="Launched inside the EHR via SMART on FHIR · "+client.state.serverUrl.replace(/^https?:\/\//,"")+" · patient "+pid+(ctx.enc?" · encounter "+ctx.enc:"")+(user?" · user "+user:"")+" · "+cnt+" FHIR resources read ("+act+" active prescription"+(act===1?"":"s")+(inact?", "+inact+" inactive":"")+")"+(notes.length?" · not available: "+notes.join("; "):"")+". Synthetic sandbox data.";
   }).catch(err=>{bar.style.background="var(--bad-soft,#fde3e4)";bar.style.color="var(--bad,#d3313a)";bar.textContent="SMART launch failed: "+(err.message||err)+" Relaunch from the EHR or launcher.";});
 })();
 </script>
