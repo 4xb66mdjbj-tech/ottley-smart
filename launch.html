@@ -1,11 +1,37 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ottley · launching</title>
-<style>body{font:16px system-ui,sans-serif;margin:0;display:grid;place-items:center;min-height:100vh;background:#e9eff6;color:#0f1b2d}@media (prefers-color-scheme:dark){body{background:#0a1220;color:#eaf0f8}}</style></head>
-<body><p id="m">Ottley is connecting to the EHR…</p>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ottley · launch</title>
+<style>
+:root{--bg:#e9eff6;--card:#fff;--ink:#0f1b2d;--mute:#56667c;--line:#d6e0eb;--ott:#0a8a8f;--bad:#c92a33}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1220;--card:#121c2e;--ink:#eaf0f8;--mute:#9db0c8;--line:#24334b;--ott:#2fd3c7;--bad:#ff6b73}}
+body{font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--ink);display:grid;place-items:center;min-height:100vh;padding:16px;box-sizing:border-box}
+.c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;max-width:520px;width:100%;display:grid;gap:12px}
+h1{margin:0;font-size:20px}label{display:grid;gap:4px;font-weight:600;font-size:14px}
+input,select{font:inherit;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+button{font:inherit;font-weight:700;padding:9px 14px;border-radius:8px;border:0;background:var(--ott);color:#fff;cursor:pointer}
+.m{color:var(--mute);font-size:13px}.e{color:var(--bad);font-weight:600}
+</style></head>
+<body><div class="c" id="box"><p id="m">Ottley is connecting…</p></div>
 <script src="fhir-client.min.js"></script>
 <script>
-FHIR.oauth2.authorize({
-  clientId: new URLSearchParams(location.search).get("client_id") || "ottley-demo",
-  scope: "launch launch/patient openid fhirUser patient/Patient.read patient/MedicationRequest.read patient/MedicationStatement.read patient/AllergyIntolerance.read patient/Observation.read",
-  redirectUri: "index.html"
-}).catch(e=>{document.getElementById("m").textContent="Launch failed: "+(e.message||e)+". Open this page from the EHR or SMART launcher, which adds ?iss= and &launch=.";});
+(function(){
+const qs=new URLSearchParams(location.search);
+const SCOPE="launch launch/patient openid fhirUser patient/Patient.read patient/MedicationRequest.read patient/MedicationStatement.read patient/AllergyIntolerance.read patient/Observation.read";
+const SERVERS={epic:"https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4",smart:"https://launch.smarthealthit.org/v/r4/fhir"};
+const box=document.getElementById("box");
+let saved="";try{saved=localStorage.getItem("ottley-client-id")||"";}catch(e){}
+function fail(e){box.innerHTML='<h1>Launch failed</h1><p class="e"></p><p class="m">Check the client ID and that the redirect URI on the app record is exactly https://4xb66mdjbj-tech.github.io/ottley-smart/index.html. New Epic sandbox client IDs can take a while to become active.</p><p><a href="launch.html">Start over</a></p>';box.querySelector(".e").textContent=String(e&&e.message||e);}
+if(qs.get("iss")&&qs.get("launch")){
+  // EHR launch: opened from inside an EHR or the SMART launcher
+  FHIR.oauth2.authorize({clientId:qs.get("client_id")||saved||"ottley-demo",scope:SCOPE,redirectUri:"index.html"}).catch(fail);
+  return;}
+// Standalone launch: start from outside the chart
+box.innerHTML='<h1>Start Ottley outside the chart</h1><p class="m">Signs in to a FHIR test server and picks a test patient there. Synthetic data only.</p>'+
+ '<label>Server<select id="srv"><option value="epic">Epic sandbox (fhir.epic.com)</option><option value="smart">SMART Health IT sandbox</option></select></label>'+
+ '<label>Non-production client ID<input id="cid" autocomplete="off" placeholder="From your app record on fhir.epic.com"></label>'+
+ '<button type="button" id="go">Sign in and choose a patient</button><p class="m">The client ID is kept only in this browser.</p>';
+document.getElementById("cid").value=saved;
+document.getElementById("go").onclick=()=>{const cid=document.getElementById("cid").value.trim(),srv=document.getElementById("srv").value;
+  if(!cid&&srv==="epic"){fail("Enter the client ID from your Epic app record first.");return;}
+  try{localStorage.setItem("ottley-client-id",cid);}catch(e){}
+  FHIR.oauth2.authorize({iss:SERVERS[srv],clientId:cid||"ottley-demo",scope:SCOPE.replace(/^launch /,""),redirectUri:"index.html"}).catch(fail);};
+})();
 </script></body></html>
