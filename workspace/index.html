@@ -174,7 +174,7 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 const SRC={pta:"Prior list (EHR)",drf:"Fill history",ce:"Outside records",fam:"Patient / family",bottle:"Bottle or bag"};
 const ADH=["Taking as directed, today","Taking as directed, yesterday","Not taking, but should be","Taking differently than Rx","Doesn't know","Stopped / not taking"];
 const TOD=[["Morning",8],["Noon",12],["Evening",18],["Bedtime",21]];
-const FLAGS=[["Taking someone else's med",1],["Out of med · missed doses",1],["Cost",1],["Stopped on own",1],["Bottle or label seen",0],["Call pharmacist",1]];
+const FLAGS=[["Using a shared medication",1],["Out of med · missed doses",1],["Cost",1],["Stopped on own",1],["Bottle or label seen",0],["Call pharmacist",1]];
 const LD=[["am","This morning",8],["mid","Midday",12],["eve","This evening",18],["ln","Last night",-3],["yd","Yesterday",null],["old","2+ days ago",null],["ns","Not sure",null]];
 const HR=/apixaban|warfarin|rivaroxaban|enoxaparin|insulin|amiodarone|metoprolol|digoxin|levetiracetam|opioid|oxycodone/i;
 const HRL=n=>/apixaban|warfarin|rivaroxaban|enoxaparin/i.test(n)?"Anticoagulant":/insulin/i.test(n)?"Insulin":/amiodarone/i.test(n)?"Antiarrhythmic":/metoprolol/i.test(n)?"Beta blocker":"High-risk";
