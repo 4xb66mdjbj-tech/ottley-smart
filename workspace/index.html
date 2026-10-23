@@ -339,7 +339,7 @@ function freshCase(c){const o=clone(c);o.meds=o.meds.map(([id,name,val,src])=>({
 
 /* ---------- state ---------- */
 let S={role:"tech",cur:"c1",act:"ott",pts:CASES.map(freshCase),wins:null,fb:{}};
-const DEFAULT_WINS={tech:["meds","hist","pom","msgs","script"],rph:["src","meds","msgs","note"],md:["prelim","note"],rn:["nurse","pom","msgs"]};
+const DEFAULT_WINS={tech:["phone","meds","hist","pom","msgs","script"],rph:["src","meds","msgs","note"],md:["prelim","note"],rn:["nurse","phone","pom","msgs"]};
 const PANELS={queue:"Tonight's queue",phone:"Family's phone",hist:"History details",meds:"Medication list",src:"Source comparison",msgs:"Messages",pom:"Own medications",note:"Med history note",script:"Bedside facts (trial script)",prelim:"Preliminary list",nurse:"For the nurse"};
 function initWins(){S.wins={};Object.keys(PANELS).forEach(k=>S.wins[k]={mode:"hidden",wide:false,pt:null,x:80,y:120,w:null});(DEFAULT_WINS[S.role]||[]).forEach((k,i)=>{S.wins[k].mode="tile";S.wins[k].order=i;});}
 initWins();
