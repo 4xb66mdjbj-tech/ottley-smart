@@ -209,6 +209,7 @@ textarea.inp{width:100%;min-height:56px;resize:vertical}
 .screen .addr{display:flex;gap:6px}.screen .addr input{flex:1;min-width:0}
 .screen .addl{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
 .screen .pm.hr{border-color:#e4b2b5;background:#fffafa}
+.screen .me{background:#0a8a8f;color:#fff;border-radius:14px;padding:8px 12px;justify-self:end;max-width:80%;font-size:14px}
 .screen .ok{width:52px;height:52px;border-radius:50%;background:#e3f4f3;color:#0a8a8f;display:grid;place-items:center;font-size:28px;font-weight:900;margin:8px auto 0}
 .screen .err{color:#b3261e;font-weight:700;font-size:13px}
 
@@ -418,7 +419,7 @@ function liveState(p){if(p.fin)return["Verified","t-good"];if(p.sent)return["Wit
 function pQueue(){const step=S.demo?S.demo.i:0;const rows=S.pts.map(p=>({room:p.room,age:p.age,sex:p.sex,why:p.why,risk:RISK[p.id],st:liveState(p),id:p.id})).concat(FILL.map((f,i)=>({room:f[0],age:f[1],sex:f[2],why:f[3],risk:f[4],st:fillState(i,step)}))).sort((a,b)=>b.risk-a.risk);
   const c={};rows.forEach(r=>{c[r.st[1]]=(c[r.st[1]]||0)+1;});
   return'<div class="qcount"><div><b>'+rows.length+'</b><span>Need a history</span></div><div><b>'+((c["t-info"]||0)+(c["t-warn"]||0))+'</b><span>Building</span></div><div><b>'+(c["t-ott"]||0)+'</b><span>Family answered</span></div><div><b>'+(c["t-good"]||0)+'</b><span>Verified</span></div></div><div class="muted" style="font-size:12.5px">Ranked by risk, not by who is quickest. Live trial cases open in the chart; the others are background patients.</div>'+rows.map(r=>'<div class="qrow"><span class="rk'+(r.risk>=8?" hi":"")+'">'+r.risk+'</span><span><b>'+esc(r.room)+" · "+r.age+" "+r.sex+"</b> · "+esc(r.why)+(r.id?' <button class="btn sm" type="button" data-act="pt" data-v="'+r.id+'">Open</button>':"")+'</span><span class="tag '+r.st[1]+'">'+esc(r.st[0])+"</span></div>").join("");}
-const BRAND={name:"Harbor Hospital",url:"harbor.example/r/7Q2",unit:"the emergency department"};
+const BRAND={name:"Harbor Hospital",url:"harbor.example/r/7Q2",unit:"the emergency department",num:"(410) 555-0199",kw:"MEDS"};
 const PROXY=["Parent / legal guardian","Family member / caregiver","Assisted-living or nursing-facility staff","Legally authorized representative"];
 const EXTRAS=["Over-the-counter medicines","Vitamins or supplements","Inhalers","Creams or ointments","Eye or ear drops","Patches","Injections or pens","As-needed medicines"];
 const CATALOG=["Acetaminophen","Albuterol inhaler","Allopurinol","Amlodipine","Aspirin 81 mg","Atorvastatin","Calcium with vitamin D","Carvedilol","Cetirizine","Clopidogrel","Docusate","Donepezil","Duloxetine","Eliquis (apixaban)","Fish oil","Fluticasone nasal spray","Gabapentin","Glipizide","Hydrochlorothiazide","Ibuprofen","Insulin glargine","Levothyroxine","Lisinopril","Loratadine","Losartan","Magnesium oxide","Meloxicam","Metformin","Multivitamin","Naproxen","Omeprazole","Pantoprazole","Polyethylene glycol (MiraLAX)","Potassium chloride","Prednisone","Sertraline","Simvastatin","Tamsulosin","Trazodone","Vitamin B12","Vitamin D3"];
@@ -436,7 +437,11 @@ function phLast(m,c,small){const ask=small?(k,v,l,cur)=>phChip(m.id,k,v,l,cur):(
   return h;}
 function pPhone(p){const ph=p.ph,who=p.cgw,self=who==="Patient",first=phFirst(p),her=self?"your":p.sex==="F"?"her":"his",she=self?"you":p.sex==="F"?"she":"he",subj=self?"you":first;
   let b='<div class="phone"><div class="screen">';
-  if(ph.st==="sms")b+='<div class="mut" style="text-align:center">Text Message · now</div><div class="sms"><b>'+esc(BRAND.name)+':</b> A member of your care team has asked for help confirming medication information for a patient receiving care. Open the secure link to help.<br><span class="u">'+esc(BRAND.url)+'</span><br><span class="mut">Reply STOP to opt out.</span></div><div class="mut">No patient name, medicine or visit detail is included.</div><button class="go" type="button" data-act="ph" data-v="open">Open the secure link</button>';
+  if(ph.st==="sms"&&ph.start==="in"){const th=ph.thread||[];
+    b+='<div class="mut" style="text-align:center">New message · To: <b>'+esc(BRAND.num)+"</b></div>"+th.map(m=>'<div class="'+(m.me?"me":"sms")+'">'+m.x+"</div>").join("");
+    if(!ph.linkOk&&(ph.tries||0)<3)b+='<label class="vh" for="pht-'+p.id+'">Text message</label><div class="addr"><input id="pht-'+p.id+'" placeholder="'+esc(BRAND.kw)+' and the code on the card" autocomplete="off"><button class="go sm" type="button" data-act="ph" data-v="txsend">Send</button></div><div class="mut">From the bedside card: text '+esc(BRAND.kw)+" and the 6-digit code to "+esc(BRAND.num)+".</div>";
+    else if(ph.linkOk)b+='<button class="go" type="button" data-act="ph" data-v="txopen">Open the secure link</button>';}
+  else if(ph.st==="sms")b+='<div class="mut" style="text-align:center">Text Message · now</div><div class="sms"><b>'+esc(BRAND.name)+':</b> A member of your care team has asked for help confirming medication information for a patient receiving care. Open the secure link to help.<br><span class="u">'+esc(BRAND.url)+'</span><br><span class="mut">Reply STOP to opt out.</span></div><div class="mut">No patient name, medicine or visit detail is included.</div><button class="go" type="button" data-act="ph" data-v="open">Open the secure link</button>';
   else if(ph.st==="open")b+=phHead("Secure medication check")+'<h4>Help requested by the care team</h4><p>A member of the care team asked for help confirming medication information. First we\'ll make sure this reached the right person.</p><div class="rec">We\'ll text a 6-digit code to<br><b>'+phMask(p)+"</b></div>"+'<button class="go" type="button" data-act="ph" data-v="sendcode">Send verification code</button><button class="lnk" type="button" data-act="ph" data-v="wrong">I don\'t know who this is about</button>';
   else if(ph.st==="code"){const v=ph.otp||"";b+=phHead()+'<h4>Enter your verification code</h4><p>We sent a 6-digit code to '+phMask(p)+'. The nurse can also read it to you.</p><div class="otpw"><label class="vh" for="phc-'+p.id+'">Verification code</label><input class="otpin" id="phc-'+p.id+'" data-act="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="'+esc(v)+'"><div class="otpb" aria-hidden="true">'+[0,1,2,3,4,5].map(i=>'<span class="'+(i===Math.min(v.length,5)?"cur":"")+'">'+(v[i]||"")+"</span>").join("")+"</div></div>"+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<div class="mut" data-until="'+(ph.sentAt+30000)+'" data-pid="'+p.id+'">Didn\'t get it? You can resend in 30 s</div>';}
   else if(ph.st==="dob")b+=phHead()+'<h4>Confirm the patient\'s date of birth</h4><p>One more check before anything is shown.</p><label class="vh" for="phd-'+p.id+'">Date of birth</label><input id="phd-'+p.id+'" placeholder="MM/DD/YYYY" inputmode="numeric">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="dob">Continue</button>';
@@ -468,7 +473,9 @@ function pPhone(p){const ph=p.ph,who=p.cgw,self=who==="Patient",first=phFirst(p)
   else b+=phHead()+'<div class="ok" aria-hidden="true">✓</div><h4>Thank you for helping</h4><p>Your answers were sent to the care team. A pharmacist will review them.'+(ph.callReq?" Someone from the team will call you.":"")+'</p><p class="mut">This does not replace a conversation with the clinical team.</p>';
   b+="</div></div>";
   const sideNote=S.role==="rn"||S.role==="tech"?'<div class="alert t-info" style="margin-top:8px"><b>Trial code:</b> <span class="mono">'+esc(p.code)+"</span> · DOB check: "+esc(p.dob)+'<br><span class="muted" style="font-size:12px">In real use the code is texted to the verified number; the nurse can also read it out.</span></div>':'<div class="muted" style="font-size:12px;margin-top:6px">Trial: the code and DOB show to the nurse or tech signed in.</div>';
-  return'<div class="muted" style="font-size:12.5px">'+esc(who)+(self?"'s own phone":"'s phone")+" · what they see · "+phMeds(p).length+" meds → "+(phLong(p)?"tap-what's-different":"one at a time")+"</div>"+b+sideNote;}
+  const tog=ph.st==="sms"&&!(ph.thread||[]).length?'<div class="chips" style="margin:0 0 6px"><span class="k">Starts</span>'+[["out","We text them"],["in","They text us"]].map(([k,l])=>'<button type="button" data-act="phstart" data-v="'+k+'" aria-pressed="'+((ph.start||"out")===k)+'">'+l+"</button>").join("")+"</div>":"";
+  const card=ph.start==="in"&&ph.st==="sms"?'<div class="alert t-info" style="margin-top:8px"><b>Bedside card (nurse hands this over):</b> "Help with medicines? Text <b>'+esc(BRAND.kw)+" "+esc(p.code.replace(/\D/g,""))+"</b> to "+esc(BRAND.num)+'." The card has no patient name. Codes expire in 24 hours.</div>':"";
+  return tog+'<div class="muted" style="font-size:12.5px">'+esc(who)+(self?"'s own phone":"'s phone")+" · what they see · "+phMeds(p).length+" meds → "+(phLong(p)?"tap-what's-different":"one at a time")+"</div>"+b+card+sideNote;}
 function applyFamily(p){const ph=p.ph,who=p.cgw.toLowerCase(),H={am:8,noon:12,eve:18,bed:21},T={am:"morning",noon:"midday",eve:"evening",bed:"bedtime"};const calls=[];
   Object.keys(ph.cg).forEach(id=>{const m=p.meds.find(x=>x.id===id),c=ph.cg[id];if(!m||!c.a)return;const ex=[];
     if(c.a==="yes"&&c.lab==="no"){c.a="diff";ex.push("label doesn't match record");}
@@ -635,6 +642,11 @@ function handle(e){
   if(a==="ph"){const ph=p.ph,v=d.v,val=id=>((doc.getElementById(id)||{}).value||"").trim();ph.err="";
     const go=st=>{ph.st=st;};
     if(v==="open")go("open");
+    else if(v==="txsend"){const t=val("pht-"+p.id);if(t){ph.thread=ph.thread||[];ph.thread.push({me:true,x:esc(t)});const dg=t.replace(/\D/g,""),kw=new RegExp("\\b"+BRAND.kw+"\\b","i").test(t);
+      if(/^\s*stop\s*$/i.test(t))ph.thread.push({x:"You're unsubscribed and will get no more messages from this number."});
+      else if(kw&&dg===p.code.replace(/\D/g,"")){ph.thread.push({x:"<b>"+esc(BRAND.name)+":</b> Thanks. Open this secure link to help with medication information. It works once and expires in 24 hours.<br><span class=\"u\">"+esc(BRAND.url)+"</span>"});ph.linkOk=true;ph.inbound=true;log(p,"Family texted in with the bedside code from "+phMask(p));}
+      else{ph.tries=(ph.tries||0)+1;ph.thread.push({x:ph.tries>=3?"<b>"+esc(BRAND.name)+":</b> We couldn't match that code. Please ask the nurse for help.":"<b>"+esc(BRAND.name)+":</b> We couldn't match that. Text "+esc(BRAND.kw)+" and the 6-digit code from the card."});if(ph.tries>=3)log(p,"Text-in blocked after 3 unmatched tries");}}}
+    else if(v==="txopen")go("dob");
     else if(v==="sendcode"){ph.sentAt=Date.now();ph.otp="";go("code");log(p,"Verification code texted to "+phMask(p));}
     else if(v==="resend"){ph.sentAt=Date.now();ph.otp="";toast("A new code was sent (trial: same code)");}
     else if(v==="wrong"){go("wrong");log(p,"Link closed: recipient said it reached the wrong person");}
@@ -654,6 +666,7 @@ function handle(e){
     else if(v==="wtskip")go("extras");
     else if(v==="send"){go("done");applyFamily(p);}
     render();return;}
+  if(a==="phstart"){p.ph.start=d.v;render();return;}
   if(a==="phrole"){p.ph.role=d.v;render();return;}
   if(a==="phex"){const ex=p.ph.ex=p.ph.ex||{};ex[d.v]=!ex[d.v];render();return;}
   if(a==="phadd"){const el=doc.getElementById("pha-"+p.id),v=(el&&el.value||"").trim();p.ph.err="";if(!v)p.ph.err="Type a medicine name first.";else{p.ph.add=p.ph.add||[];if(p.ph.add.indexOf(v)<0)p.ph.add.push(v);}render();return;}
