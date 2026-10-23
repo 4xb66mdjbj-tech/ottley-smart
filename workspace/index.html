@@ -238,7 +238,7 @@ const POMD=["Secure with patient belongings","Send home with family","Pharmacy h
 
 /* ---------- the five trial cases (invented) ---------- */
 const CASES=[
- {id:"c1",dob:"04/02/1942",code:"304 118",cgw:"Daughter",pharm:"Riverside Pharmacy #112 · 410-555-0142",pcp:"Dr. Alan Brooks · 410-555-0177",abx:"no",room:"ED 12",name:"Margaret Hollis",age:84,sex:"F",arr:"09:40",why:"Shortness of breath, CHF",allergy:"Sulfa (rash)",wt:"61 kg stated",contact:"Daughter at bedside",
+ {id:"c1",dob:"04/02/1942",code:"304 118",cgw:"Daughter",pharm:"Riverside Pharmacy #112 · 410-555-0142",pcp:"Dr. Alan Brooks · 410-555-0177",abx:"no",room:"ED 12",name:"Margaret Hollis",age:84,sex:"F",arr:"09:40",why:"Shortness of breath, CHF",allergy:"Sulfa (rash)",w0:{stated:{kg:61,by:"daughter at bedside"},prior:{kg:63.5,date:"06/2026"},ht:{cm:157,src:"Earlier visit 06/2026 · measured"}},contact:"Daughter at bedside",
   goal:"Elderly patient on 15 meds. Practice moving fast through routine lines and catching the two that matter.",
   script:["Daughter manages the pill box. Everything is taken as directed unless listed here.","Furosemide went up to 40 mg in late September (cardiology).","Lisinopril was stopped by the cardiologist in September.","Apixaban and glargine were last given last night; everything else this morning about 7.","Calcium + vitamin D is over the counter, twice a day."],
   meds:[
@@ -258,7 +258,7 @@ const CASES=[
    ["acet","Acetaminophen","500 mg every 6 h as needed",{pta:"500 mg every 6 h as needed",fam:"500 mg every 6 h as needed"}],
    ["docu","Docusate","100 mg twice daily",{pta:"100 mg twice daily"}]],
   pom:[]},
- {id:"c2",dob:"09/23/1968",code:"527 640",cgw:"Patient",pharm:"Harbor Drug · 410-555-0190",pcp:"Dr. Mei Chen · 410-555-0123",abx:"no",room:"ED 4",name:"Luis Ferreira",age:58,sex:"M",arr:"10:15",why:"COPD flare",allergy:"No known drug allergies",wt:"88.4 kg measured",contact:"Brought a bag of his own medicines",
+ {id:"c2",dob:"09/23/1968",code:"527 640",cgw:"Patient",pharm:"Harbor Drug · 410-555-0190",pcp:"Dr. Mei Chen · 410-555-0123",abx:"no",room:"ED 4",name:"Luis Ferreira",age:58,sex:"M",arr:"10:15",why:"COPD flare",allergy:"No known drug allergies",w0:{measured:{kg:88.4,method:"standing scale",by:"triage RN"},prior:{kg:90,date:"02/2026"},ht:{cm:178,src:"Earlier visit 02/2026 · measured"}},contact:"Brought a bag of his own medicines",
   goal:"A bag of the patient's own medicines. Practice the accept or reject step and the nurse handoff.",
   script:["He brought a bag: tiotropium inhaler, fluticasone-salmeterol inhaler, an amlodipine bottle, and a tub of psyllium.","The amlodipine bottle is dated 2024; he says he has a newer one at home and takes it every morning.","Prednisone is from urgent care on 10/15, a 5-day course; today is day 6, so he finished it.","All inhalers used this morning about 6."],
   meds:[
@@ -269,7 +269,7 @@ const CASES=[
    ["amlo","Amlodipine","5 mg daily",{pta:"5 mg daily",drf:"5 mg daily · 10/03",bottle:"Bottle dated 2024"}],
    ["psyl","Psyllium powder","1 tablespoon daily",{fam:"1 tablespoon daily",bottle:"In bag"}]],
   pom:[{n:"Tiotropium inhaler",q:"1 inhaler",form:false,cat:"rx"},{n:"Fluticasone-salmeterol 250/50 inhaler",q:"1 inhaler",form:true,cat:"rx"},{n:"Amlodipine 5 mg bottle (dated 2024)",q:"about 20 tablets",form:true,cat:"rx",exp:true},{n:"Psyllium powder",q:"1 tub",form:false,cat:"otc"}]},
- {id:"c3",dob:"01/30/1979",code:"715 902",cgw:"Patient",pharm:"Northpoint Pharmacy · 410-555-0168",pcp:"Dr. Ruth Adeyemi · 410-555-0111",abx:"yes · amoxicillin, finished 10/12",room:"ED 19",name:"Dana Whitfield",age:47,sex:"F",arr:"11:05",why:"Palpitations",allergy:"Codeine (nausea)",wt:"72 kg stated",contact:"Patient, own phone",
+ {id:"c3",dob:"01/30/1979",code:"715 902",cgw:"Patient",pharm:"Northpoint Pharmacy · 410-555-0168",pcp:"Dr. Ruth Adeyemi · 410-555-0111",abx:"yes · amoxicillin, finished 10/12",room:"ED 19",name:"Dana Whitfield",age:47,sex:"F",arr:"11:05",why:"Palpitations",allergy:"Codeine (nausea)",w0:{stated:{kg:72,by:"patient"},prior:{kg:74,date:"09/2026"},ht:null},contact:"Patient, own phone",
   goal:"Outside fill history disagrees with the old prior list on three meds. Practice settling conflicts from the source grid.",
   script:["Levothyroxine went down to 88 mcg at her last visit in September.","She switched from metoprolol tartrate twice a day to metoprolol succinate 50 mg once a day in October.","She takes gabapentin 300 mg twice a day, not three times.","Morning meds taken at 7 today; gabapentin also at bedtime yesterday.","She finished amoxicillin for a sinus infection on 10/12."],
   meds:[
@@ -279,7 +279,7 @@ const CASES=[
    ["esci","Escitalopram","10 mg daily",{pta:"10 mg daily",drf:"10 mg daily · 10/01"}],
    ["ocp","Norethindrone-ethinyl estradiol","1 tablet daily",{drf:"1 tablet daily · 09/28"}]],
   pom:[]},
- {id:"c4",dob:"06/11/1963",code:"268 351",cgw:"Wife",pharm:"Mail order (Express benefit) · 1-800-555-0100",pcp:"Dr. Sam Patel · 410-555-0155",abx:"no",room:"ED 7",name:"Raymond Okafor",age:63,sex:"M",arr:"12:20",why:"High blood sugar",allergy:"Lisinopril (cough)",wt:"No weight yet",contact:"Wife on the phone",
+ {id:"c4",dob:"06/11/1963",code:"268 351",cgw:"Wife",pharm:"Mail order (Express benefit) · 1-800-555-0100",pcp:"Dr. Sam Patel · 410-555-0155",abx:"no",room:"ED 7",name:"Raymond Okafor",age:63,sex:"M",arr:"12:20",why:"High blood sugar",allergy:"Lisinopril (cough)",w0:{prior:{kg:112,date:"11/2025"},ht:{cm:183,src:"Earlier visit 11/2025 · measured"}},contact:"Wife on the phone",
   goal:"Insulin doses that don't match and a last dose nobody knows. Practice not letting insulin through on a guess.",
   script:["Wife says glargine went up to 32 units at bedtime two months ago.","She isn't sure if he took it last night.","Lispro: sliding scale with meals; he skipped lunch today.","He stopped empagliflozin in August because of cost."],
   meds:[
@@ -290,7 +290,7 @@ const CASES=[
    ["losa","Losartan","50 mg daily",{pta:"50 mg daily",drf:"50 mg daily · 10/04"}],
    ["ator","Atorvastatin","40 mg at bedtime",{pta:"40 mg at bedtime",drf:"40 mg at bedtime · 09/29"}]],
   pom:[]},
- {id:"c5",dob:"03/14/1950",code:"482 915",cgw:"Son",pharm:"Riverside Pharmacy #112 · 410-555-0142",pcp:"Dr. Alan Brooks · 410-555-0177",abx:"no",room:"ED 22",name:"Gloria Pettiway",age:76,sex:"F",arr:"13:30",why:"Fall at home, head strike",allergy:"No known drug allergies",wt:"64 kg stated",contact:"Son on the phone",
+ {id:"c5",dob:"03/14/1950",code:"482 915",cgw:"Son",pharm:"Riverside Pharmacy #112 · 410-555-0142",pcp:"Dr. Alan Brooks · 410-555-0177",abx:"no",room:"ED 22",name:"Gloria Pettiway",age:76,sex:"F",arr:"13:30",why:"Fall at home, head strike",allergy:"No known drug allergies",w0:{prior:{kg:58,date:"03/2026"},ht:{cm:160,src:"Earlier visit 03/2026 · measured"}},contact:"Son on the phone",
   goal:"Anticoagulant with an unclear last dose after a fall. Practice getting the time before anything is verified.",
   script:["Son thinks she took apixaban this morning but isn't sure; she lives alone.","Warfarin was switched to apixaban in 2024; she has none at home.","Amiodarone 200 mg daily, metoprolol tartrate 25 mg twice daily, furosemide 20 mg daily: taken as directed.","Alendronate on Sundays."],
   meds:[
@@ -302,7 +302,7 @@ const CASES=[
    ["alen","Alendronate","70 mg weekly (Sundays)",{pta:"70 mg weekly",drf:"70 mg weekly · 09/14"}]],
   pom:[]}
 ];
-function freshCase(c){const o=clone(c);o.meds=o.meds.map(([id,name,val,src])=>({id,name,val,src,hr:HR.test(name),tn:{a:"",f:{},x:""},ld:null,pick:null,matched:false,stopped:false,dec:null}));o.pom=o.pom.map(x=>Object.assign({dec:null,reason:"",disp:"",ndone:false},x));o.hist={src:{},managed:"",inote:""};o.ph={st:"sms",cg:{},err:"",wt:""};o.msgs=[];o.sent=false;o.fin=null;o.att={ck:{},sig:"",open:false};o.close="";o.log=[];o.opened=null;return o;}
+function freshCase(c){const o=clone(c);o.meds=o.meds.map(([id,name,val,src])=>({id,name,val,src,hr:HR.test(name),tn:{a:"",f:{},x:""},ld:null,pick:null,matched:false,stopped:false,dec:null}));o.pom=o.pom.map(x=>Object.assign({dec:null,reason:"",disp:"",ndone:false},x));o.hist={src:{},managed:"",inote:""};o.w=Object.assign({stated:null,measured:null,prior:null,ht:null,look:"",err:""},clone(o.w0||{}));o.ph={st:"sms",cg:{},err:"",wt:""};o.msgs=[];o.sent=false;o.fin=null;o.att={ck:{},sig:"",open:false};o.close="";o.log=[];o.opened=null;return o;}
 
 /* ---------- state ---------- */
 let S={role:"tech",cur:"c1",act:"ott",pts:CASES.map(freshCase),wins:null,fb:{}};
@@ -346,7 +346,7 @@ function noteText(p){const L=[];const pd=["10/22/2026"];
   p.meds.filter(m=>!(m.stopped||m.tn.a==="Stopped / not taking")).forEach(m=>{const fl=FLAGS.filter(([f,x])=>x&&m.tn.f[f]).map(([f])=>f.toLowerCase());L.push(m.name+"\t"+value(m)+(m.ld?" · last taken "+m.ld.l.toLowerCase():"")+(fl.length?" · "+fl.join(", "):"")+(m.matched?"":" (not yet verified)"));});
   const st=p.meds.filter(m=>m.stopped||m.tn.a==="Stopped / not taking");if(st.length){L.push("","No longer taking:");st.forEach(m=>L.push(m.name));}
   if(p.pom.length){L.push("","Patient's own medications:");p.pom.forEach(x=>L.push(x.n+": "+(x.dec==="accept"?"accepted, sent to pharmacy for identification":x.dec==="reject"?"not used ("+x.reason.toLowerCase()+"), "+x.disp.toLowerCase():"decision pending")));}
-  L.push("","Retail pharmacy (phone number): "+p.pharm,"","Primary care provider (phone number): "+p.pcp,"","Allergies: "+p.allergy,"","Recent anti-infective use: "+p.abx,"","At home, medications are managed by: "+(p.hist.managed||"not documented"),"","Please call the pharmacy department if you have any questions.","",BPMH);
+  L.push("","Retail pharmacy (phone number): "+p.pharm,"","Primary care provider (phone number): "+p.pcp,"","Weight: "+wLineNote(p),"","Height: "+(p.w.ht?p.w.ht.cm+" cm · "+p.w.ht.src:"Not documented"),"","Allergies: "+p.allergy,"","Recent anti-infective use: "+p.abx,"","At home, medications are managed by: "+(p.hist.managed||"not documented"),"","Please call the pharmacy department if you have any questions.","",BPMH);
   return L.join("\n");}
 
 /* ---------- formatted note + summary ---------- */
@@ -358,6 +358,7 @@ function summaryText(p){const act=p.meds.filter(m=>!(m.stopped||m.tn.a==="Stoppe
   const hr=act.filter(m=>m.hr);if(hr.length)out.push("High-risk: "+hr.map(m=>m.name.toLowerCase()+(m.ld?(m.ld.k==="unk"?" last dose unknown ("+(m.ld.l.split(" · ")[1]||"patient doesn't know")+")":" last taken "+m.ld.l.toLowerCase()):" last dose not documented")).join("; ")+".");
   const fl=act.filter(m=>FLAGS.some(([f,x])=>x&&m.tn.f[f])||m.tn.a==="Not taking, but should be");if(fl.length)out.push("Flagged: "+fl.map(m=>m.name.toLowerCase()+" ("+(FLAGS.filter(([f,x])=>x&&m.tn.f[f]).map(([f])=>f.toLowerCase()).concat(m.tn.a==="Not taking, but should be"?["not taking, but should be"]:[]).join(", "))+")").join("; ")+".");
   if(p.pom.length){const acc=p.pom.filter(x=>x.dec==="accept").length,rej=p.pom.filter(x=>x.dec==="reject").length,pen=p.pom.length-acc-rej;out.push("Own medications: "+[acc?acc+" accepted":"",rej?rej+" not used":"",pen?pen+" pending":""].filter(Boolean).join(", ")+".");}
+  {const n=wNow(p),d=wDiff(p);out.push("Weight: "+(n?n.kg+" kg "+n.how:"not recorded")+(n&&n.how==="stated"?" ("+p.w.stated.by+"), not measured":"")+(d>0.1?"; differs from chart "+p.w.prior.kg+" kg ("+p.w.prior.date+") by "+Math.round(d*100)+"%":"")+(p.w.look&&p.w.look!=="Yes"?"; "+p.w.look.toLowerCase():"")+".");}
   if(/^yes/i.test(p.abx))out.push("Recent anti-infective: "+p.abx.replace(/^yes · /i,"")+".");
   return out.join(" ");}
 function medStatus(m){if(m.stopped||m.tn.a==="Stopped / not taking")return"Not taking";return(m.matched?"Verified":"Not yet verified")+(m.ld?(m.ld.k==="unk"?" · last dose unknown":" · last taken "+m.ld.l.toLowerCase()):"");}
@@ -373,7 +374,7 @@ function noteHTML(p){const by=p.hist.by||[],rphOnly=by.length&&by.indexOf("Techn
   if(stop.length)h+='<div><h4>No longer taking</h4><div style="font-size:13.5px">'+stop.map(m=>esc(m.name)).join(", ")+"</div></div>";
   if(p.pom.length)h+='<div><h4>Patient\'s own medications</h4><div class="tw"><table class="t"><thead><tr><th>Item brought in</th><th>Decision</th></tr></thead><tbody>'+p.pom.map(x=>"<tr><td>"+esc(x.n)+"</td><td>"+esc(x.dec==="accept"?"Accepted · sent to pharmacy to identify":x.dec==="reject"?"Not used · "+x.reason+" · "+x.disp+(x.ndone?" (done)":""):"Decision pending")+"</td></tr>").join("")+"</tbody></table></div></div>";
   const [ph,pn]=p.pharm.split(" · "),[dr,dn]=p.pcp.split(" · ");
-  h+='<div class="kv"><div><h4>Retail pharmacy</h4><span>'+esc(ph)+"<br>"+esc(pn||"")+'</span></div><div><h4>Primary care provider</h4><span>'+esc(dr)+"<br>"+esc(dn||"")+'</span></div><div><h4>Allergies</h4><span>'+esc(p.allergy)+'</span></div><div><h4>Recent anti-infective use</h4><span>'+esc(p.abx.charAt(0).toUpperCase()+p.abx.slice(1))+'</span></div><div><h4>Medications managed at home by</h4><span>'+esc(p.hist.managed||"Not documented")+"</span></div></div>";
+  h+='<div class="kv"><div><h4>Retail pharmacy</h4><span>'+esc(ph)+"<br>"+esc(pn||"")+'</span></div><div><h4>Primary care provider</h4><span>'+esc(dr)+"<br>"+esc(dn||"")+'</span></div><div><h4>Weight</h4><span>'+esc(wLineNote(p))+'</span></div><div><h4>Height</h4><span>'+esc(p.w.ht?p.w.ht.cm+" cm · "+p.w.ht.src:"Not documented")+'</span></div><div><h4>Allergies</h4><span>'+esc(p.allergy)+'</span></div><div><h4>Recent anti-infective use</h4><span>'+esc(p.abx.charAt(0).toUpperCase()+p.abx.slice(1))+'</span></div><div><h4>Medications managed at home by</h4><span>'+esc(p.hist.managed||"Not documented")+"</span></div></div>";
   h+='<div style="font-size:13.5px">Please call the pharmacy department if you have any questions.</div><div class="disc">'+esc(BPMH)+"</div></article>";return h;}
 
 
@@ -418,13 +419,33 @@ const DEMO=[
 function layout(keys){initWins();Object.keys(S.wins).forEach(k=>{S.wins[k].mode="hidden";});keys.forEach((k,i)=>{S.wins[k].mode="tile";S.wins[k].order=i;S.wins[k].wide=false;});if(S.act!=="medrec")S.act="ott";}
 function demoGo(i){S.demo.i=Math.max(0,Math.min(DEMO.length-1,i));S.act="ott";DEMO[S.demo.i].go();render();}
 
+
+/* ---------- weight and height ---------- */
+function wNow(p){const w=p.w;return w.measured?{kg:w.measured.kg,how:"measured"}:w.stated?{kg:w.stated.kg,how:"stated"}:null;}
+function wDiff(p){const w=p.w,base=w.stated||w.measured;if(!base||!w.prior)return 0;return Math.abs(base.kg-w.prior.kg)/w.prior.kg;}
+function wText(p){const w=p.w,n=wNow(p);if(!n)return"No weight yet"+(w.prior?" · chart "+w.prior.kg+" kg ("+w.prior.date+")":"");return n.kg+" kg "+n.how+(n.how==="stated"?" · not measured":"");}
+function wLineNote(p){const w=p.w,o=[];o.push(w.measured?w.measured.kg+" kg measured ("+w.measured.method+", "+w.measured.by+")":"Not measured");if(w.stated)o.push("stated "+w.stated.kg+" kg by "+w.stated.by);if(w.prior)o.push("chart "+w.prior.kg+" kg, "+w.prior.date);if(w.look)o.push("appearance: "+w.look.toLowerCase());return o.join(" · ");}
+function wHtml(p){const w=p.w,ed=canEnter(),d=wDiff(p);
+  let h='<div class="muted" style="font-size:12.5px;font-weight:700">Weight and height</div><div class="tw"><table class="t"><tbody>';
+  h+='<tr><td class="muted">Stated</td><td>'+(w.stated?"<b>"+w.stated.kg+" kg</b> · "+esc(w.stated.by):'<span class="tag t-warn">Not given yet</span>')+"</td></tr>";
+  h+='<tr><td class="muted">Measured</td><td>'+(w.measured?"<b>"+w.measured.kg+" kg</b> · "+esc(w.measured.method)+" · "+esc(w.measured.by):'<span class="tag t-warn">Not measured</span>')+"</td></tr>";
+  h+='<tr><td class="muted">In the chart</td><td>'+(w.prior?w.prior.kg+" kg · "+esc(w.prior.date):"No earlier weight")+"</td></tr>";
+  h+='<tr><td class="muted">Height</td><td>'+(w.ht?w.ht.cm+" cm · "+esc(w.ht.src):'<span class="tag">None in records</span>')+"</td></tr></tbody></table></div>";
+  if(d>0.1)h+='<div class="alert t-warn"><b>'+(w.stated?"Stated":"Measured")+" weight differs from the chart by "+Math.round(d*100)+"%.</b> Check it against the patient and recent history before anyone doses by weight.</div>";
+  if(w.stated&&!w.measured)h+='<div class="muted" style="font-size:12.5px;font-weight:700">Does the patient look like the stated weight?</div><div class="chips">'+["Yes","Looks heavier","Looks lighter","Can't assess"].map(x=>'<button type="button" data-act="wlook" data-v="'+x+'" aria-pressed="'+(w.look===x)+'"'+(ed?"":" disabled")+">"+x+"</button>").join("")+"</div>";
+  if(ed){h+='<div class="row"><label class="vh" for="wst-'+p.id+'">Stated weight</label><input class="inp" id="wst-'+p.id+'" inputmode="decimal" placeholder="Stated" style="width:90px"><select class="inp" id="wsu-'+p.id+'"><option>lb</option><option>kg</option></select><label class="vh" for="wsb-'+p.id+'">Stated by</label><select class="inp" id="wsb-'+p.id+'"><option>patient</option><option>family</option><option>facility record</option></select><button class="btn sm" type="button" data-act="wstated">Save stated</button></div>';
+    h+='<div class="row"><label class="vh" for="wms-'+p.id+'">Measured weight in kg</label><input class="inp" id="wms-'+p.id+'" inputmode="decimal" placeholder="Measured kg" style="width:110px"><label class="vh" for="wmm-'+p.id+'">Method</label><select class="inp" id="wmm-'+p.id+'"><option value="">How measured?</option><option>bed scale</option><option>standing scale</option><option>chair scale</option></select><button class="btn sm" type="button" data-act="wmeas">Save measured</button></div>';
+    if(!w.ht)h+='<div class="row"><label class="vh" for="hcm-'+p.id+'">Height in cm</label><input class="inp" id="hcm-'+p.id+'" inputmode="decimal" placeholder="Height cm" style="width:100px"><select class="inp" id="hhow-'+p.id+'"><option>stated</option><option>measured</option></select><button class="btn sm" type="button" data-act="hsave">Save height</button></div>';}
+  if(w.err)h+='<div class="block">'+esc(w.err)+"</div>";
+  return h;}
+
 /* ---------- panel renderers (return HTML) ---------- */
 function pMeds(p){const r=S.role;
   const open=p.meds.filter(m=>!(m.matched||m.stopped)).sort((a,b)=>(status(b)[1]==="t-bad")-(status(a)[1]==="t-bad")),closed=p.meds.filter(m=>m.matched||m.stopped);
   let h="";
   if(r==="rph"){const nb=open.filter(m=>!block(m)&&!m.hr&&!FLAGS.some(([f,x])=>x&&m.tn.f[f])&&m.tn.a).length;h+='<div class="row"><span class="tag '+(open.length?"t-warn":"t-good")+'">'+open.length+" left · "+closed.length+" done</span>"+(nb?'<button class="btn sm" type="button" data-act="matchall">Match all routine ('+nb+")</button>":"")+(p.fin?'<span class="tag t-good">Med rec complete · '+esc(p.att.sig)+" · "+esc(p.fin)+"</span>":'<button class="btn sm pri" type="button" data-act="attopen"'+(done(p)?"":' disabled title="Match or confirm every line first"')+">Complete medication reconciliation</button>")+"</div>"+(p.att.open&&!p.fin?attCard(p):"");}
   if(r!=="tech")h+='<div class="row"><button class="btn sm'+(S.entry?" pri":"")+'" type="button" data-act="entry" aria-pressed="'+!!S.entry+'">'+(S.entry?"Done taking the history":"Take the history myself")+'</button><span class="muted" style="font-size:12px">'+(S.entry?"You are entering the history as "+roleName().toLowerCase()+". It's recorded under your name.":"For shifts with no technician.")+"</span></div>";
-  if(canEnter()){const miss=p.meds.filter(needLD).length;h+='<div class="row"><span class="tag '+(miss?"t-warn":"t-good")+'">'+(miss?miss+" last dose"+(miss>1?"s":"")+" missing":"Last doses in")+'</span><button class="btn sm" type="button" data-act="bulktoday">Mark all unselected taking as directed, today</button>'+(r==="tech"?'<button class="btn sm pri" type="button" data-act="send">'+(p.sent?"Sent ✓ · send again":"Send to pharmacist")+"</button>":"")+"</div>"+(S.sendWarn?'<div class="alert t-warn" style="--tc:var(--warn);--ts:var(--warn-soft)"><b>'+miss+" scheduled med"+(miss>1?"s have":" has")+' no last dose.</b> Ask now if you can. <button class="btn sm" type="button" data-act="sendgo">Send anyway</button></div>':"");}
+  if(canEnter()){const miss=p.meds.filter(needLD).length;h+='<div class="row"><span class="tag '+(miss?"t-warn":"t-good")+'">'+(miss?miss+" last dose"+(miss>1?"s":"")+" missing":"Last doses in")+'</span><button class="btn sm" type="button" data-act="bulktoday">Mark all unselected taking as directed, today</button>'+(r==="tech"?'<button class="btn sm pri" type="button" data-act="send">'+(p.sent?"Sent ✓ · send again":"Send to pharmacist")+"</button>":"")+"</div>"+(S.sendWarn?'<div class="alert t-warn" style="--tc:var(--warn);--ts:var(--warn-soft)"><b>'+(miss?miss+" scheduled med"+(miss>1?"s have":" has")+" no last dose. ":"")+(wNow(p)?"":"No weight recorded. ")+'</b> Ask now if you can. <button class="btn sm" type="button" data-act="sendgo">Send anyway</button></div>':"");}
   h+=open.map(m=>medLine(p,m)).join("")||'<div class="alert t-good"><b>Every line is done.</b></div>';
   if(closed.length)h+='<details><summary class="muted" style="cursor:pointer;font-weight:700">Done ('+closed.length+")</summary>"+closed.map(m=>'<div class="row muted" style="justify-content:space-between;padding:3px 0"><span>✓ '+esc(m.name)+" · "+esc(m.stopped?"not taking":value(m))+"</span>"+(r==="rph"&&!p.fin?'<button class="btn sm" type="button" data-act="undo" data-m="'+m.id+'">Undo</button>':"")+"</div>").join("")+"</details>";
   return h;}
@@ -454,7 +475,7 @@ function pPrelim(p){return'<div class="alert '+recState(p)[1]+'"><b>'+esc(recSta
 function pNurse(p){const today=p.meds.filter(m=>m.ld&&/morning|midday|evening/i.test(m.ld.l)),pend=p.pom.filter(x=>x.dec==="reject"&&!x.ndone),wait=p.pom.filter(x=>!x.dec);
   return'<div class="alert t-bad"><b>Taken today:</b> '+(today.length?today.map(m=>esc(m.name)+" ("+esc(m.ld.l.toLowerCase())+")").join(", "):"none documented yet")+"</div>"+(wait.length?'<div class="alert t-warn"><b>'+wait.length+" own medication"+(wait.length>1?"s":"")+"</b> waiting for the pharmacist. Keep at the bedside or nurse station.</div>":"")+(pend.length?'<div class="alert t-warn"><b>'+pend.length+"</b> disposition"+(pend.length>1?"s":"")+" for you to carry out in Own medications.</div>":"");}
 function pHist(p){const h=p.hist,ed=canEnter();
-  return'<div class="muted" style="font-size:12.5px;font-weight:700">Medication history obtained from</div><div class="chips">'+SRCS.map(x=>'<button type="button" data-act="hsrc" data-v="'+esc(x)+'" aria-pressed="'+!!h.src[x]+'"'+(ed?"":" disabled")+">"+esc(x)+"</button>").join("")+'</div><div class="muted" style="font-size:12.5px;font-weight:700">At home, medications are managed by</div><div class="chips">'+MANAGED.map(x=>'<button type="button" data-act="hman" data-v="'+esc(x)+'" aria-pressed="'+(h.managed===x)+'"'+(ed?"":" disabled")+">"+esc(x)+"</button>").join("")+'</div><label class="muted" style="font-size:12.5px;font-weight:700;display:grid;gap:4px" for="in-'+p.id+'">Interview notes (200 characters)<textarea class="inp" id="in-'+p.id+'" data-act="inote" maxlength="200"'+(ed?"":" readonly")+'>'+esc(h.inote)+'</textarea></label><div class="tw"><table class="t"><tbody><tr><td class="muted">Retail pharmacy</td><td>'+esc(p.pharm)+'</td></tr><tr><td class="muted">Primary care</td><td>'+esc(p.pcp)+'</td></tr><tr><td class="muted">Recent anti-infective use</td><td>'+esc(p.abx)+"</td></tr></tbody></table></div>";}
+  return wHtml(p)+'<div class="muted" style="font-size:12.5px;font-weight:700">Medication history obtained from</div><div class="chips">'+SRCS.map(x=>'<button type="button" data-act="hsrc" data-v="'+esc(x)+'" aria-pressed="'+!!h.src[x]+'"'+(ed?"":" disabled")+">"+esc(x)+"</button>").join("")+'</div><div class="muted" style="font-size:12.5px;font-weight:700">At home, medications are managed by</div><div class="chips">'+MANAGED.map(x=>'<button type="button" data-act="hman" data-v="'+esc(x)+'" aria-pressed="'+(h.managed===x)+'"'+(ed?"":" disabled")+">"+esc(x)+"</button>").join("")+'</div><label class="muted" style="font-size:12.5px;font-weight:700;display:grid;gap:4px" for="in-'+p.id+'">Interview notes (200 characters)<textarea class="inp" id="in-'+p.id+'" data-act="inote" maxlength="200"'+(ed?"":" readonly")+'>'+esc(h.inote)+'</textarea></label><div class="tw"><table class="t"><tbody><tr><td class="muted">Retail pharmacy</td><td>'+esc(p.pharm)+'</td></tr><tr><td class="muted">Primary care</td><td>'+esc(p.pcp)+'</td></tr><tr><td class="muted">Recent anti-infective use</td><td>'+esc(p.abx)+"</td></tr></tbody></table></div>";}
 const RENDER={queue:pQueue,phone:pPhone,hist:pHist,meds:pMeds,src:pSrc,msgs:pMsgs,pom:pPom,note:pNote,script:pScript,prelim:pPrelim,nurse:pNurse};
 
 /* ---------- windows: tile, float, pop out ---------- */
@@ -489,7 +510,7 @@ function render(){const p=cur();if(!p.opened)p.opened=Date.now();
   $("role").value=S.role;
   $("track").innerHTML=S.pts.map(q=>{const rs=recState(q),c=q.meds.filter(isConflict).length;return'<button class="trow" type="button" data-act="pt" data-v="'+q.id+'" aria-pressed="'+(q.id===S.cur)+'"><span class="rm">'+esc(q.room)+"</span><span><b>"+esc(q.name)+"</b><small>"+q.age+" "+q.sex+" · "+esc(q.why)+'</small></span><span class="tag '+(q.fin?"t-good":c?"t-bad":q.sent?"t-info":"t-warn")+'">'+(q.fin?"Med rec ✓":c?c+" conflict"+(c>1?"s":""):q.sent?"With RPh":"Tech")+"</span></button>";}).join("");
   const rs=recState(p);
-  $("ban").innerHTML='<span class="nm">'+esc(p.name)+'</span><span class="kv"><b>'+p.age+" y "+p.sex+'</b></span><span class="kv">'+esc(p.room)+' · arrived <b class="mono">'+esc(p.arr)+'</b></span><span class="kv">Allergies: <b>'+esc(p.allergy)+'</b></span><span class="kv">Weight: <b>'+esc(p.wt)+'</b></span><span class="tag '+rs[1]+'">Med history: '+esc(rs[0])+"</span>";
+  $("ban").innerHTML='<span class="nm">'+esc(p.name)+'</span><span class="kv"><b>'+p.age+" y "+p.sex+'</b></span><span class="kv">'+esc(p.room)+' · arrived <b class="mono">'+esc(p.arr)+'</b></span><span class="kv">Allergies: <b>'+esc(p.allergy)+'</b></span><span class="kv">Weight: <b>'+esc(wText(p))+'</b></span><span class="tag '+rs[1]+'">Med history: '+esc(rs[0])+"</span>";
   const A=[["ott","Ottley"],["pta","PTA meds"],["medrec","Admission med rec"],["notes","Notes"],["log","Activity log"],["fb","Trial feedback"]];
   $("acts").innerHTML=A.map(([k,l])=>'<button type="button" role="tab" class="'+(k==="ott"?"ott":"")+'" data-act="act" data-v="'+k+'" aria-selected="'+(S.act===k)+'">'+(k==="ott"?"<i></i>":"")+l+"</button>").join("");
   $("pane").innerHTML=S.act==="ott"?renderOtt():S.act==="pta"?renderPTA(p):S.act==="medrec"?renderMedRec(p):S.act==="notes"?renderNotes(p):S.act==="log"?renderLog(p):renderFB(p);
@@ -519,12 +540,18 @@ function handle(e){
   if(a==="demonext"){demoGo(S.demo.i+1);return;}
   if(a==="demoback"){demoGo(S.demo.i-1);return;}
   if(a==="demoend"){S.demo=null;S.after=false;initWins();render();return;}
+  if(a==="wlook"){p.w.look=p.w.look===d.v?"":d.v;mark(p);log(p,"Weight check: "+(p.w.look||"cleared").toLowerCase());render();return;}
+  if(a==="wstated"||a==="wmeas"||a==="hsave"){const g=id=>((doc.getElementById(id)||{}).value||"").trim();p.w.err="";mark(p);
+    if(a==="wstated"){const v=parseFloat(g("wst-"+p.id)),u=g("wsu-"+p.id),kg=u==="lb"?Math.round(v/2.2046*10)/10:v;if(!(kg>=2&&kg<=350))p.w.err="Check the stated weight and the unit.";else{p.w.stated={kg,by:g("wsb-"+p.id)+(u==="lb"?", "+v+" lb":"")};log(p,"Stated weight "+kg+" kg");}}
+    if(a==="wmeas"){const v=parseFloat(g("wms-"+p.id)),m2=g("wmm-"+p.id);if(!(v>=2&&v<=350))p.w.err="Enter the scale reading in kg (2 to 350).";else if(!m2)p.w.err="Pick how it was measured.";else{p.w.measured={kg:Math.round(v*10)/10,method:m2,by:roleName().toLowerCase()};p.w.look="";log(p,"Measured weight "+v+" kg ("+m2+")");}}
+    if(a==="hsave"){const v=parseFloat(g("hcm-"+p.id)),how=g("hhow-"+p.id);if(!(v>=40&&v<=230))p.w.err="Height should be 40 to 230 cm. Was it entered in inches?";else if(p.age>=18&&v<120)p.w.err="Under 120 cm for an adult. Was it entered in inches?";else{p.w.ht={cm:Math.round(v),src:how==="measured"?"Measured now":"Stated now"};log(p,"Height "+v+" cm ("+how+")");}}
+    render();return;}
   if(a==="ph"){const ph=p.ph,v=d.v,val=id=>((doc.getElementById(id)||{}).value||"").trim();ph.err="";
     if(v==="open")ph.st="code";
     else if(v==="wrong"){ph.st="wrong";log(p,"Link closed: recipient said it reached the wrong person");}
     else if(v==="code"){if(val("phc-"+p.id).replace(/\D/g,"")===p.code.replace(/\D/g,""))ph.st="dob";else ph.err="That code doesn't match. Ask the nurse for the code again.";}
     else if(v==="dob"){if(val("phd-"+p.id)===p.dob)ph.st="wt";else ph.err="That date doesn't match our records. Check it and try again.";}
-    else if(v==="wt"){const w=parseFloat(val("phw-"+p.id));if(!(w>40&&w<700)){ph.err="Enter a weight in pounds, or tap Skip.";}else{ph.wt=w;p.wt=(Math.round(w/2.2046*10)/10)+" kg stated by "+p.cgw.toLowerCase()+" on the link";ph.st="list";}}
+    else if(v==="wt"){const w=parseFloat(val("phw-"+p.id));if(!(w>40&&w<700)){ph.err="Enter a weight in pounds, or tap Skip.";}else{ph.wt=w;p.w.stated={kg:Math.round(w/2.2046*10)/10,by:p.cgw.toLowerCase()+" via link, "+w+" lb"};log(p,p.cgw+" gave a stated weight on the link: "+p.w.stated.kg+" kg");ph.st="list";}}
     else if(v==="wtskip")ph.st="list";
     else if(v==="send"){ph.st="done";applyFamily(p);}
     render();return;}
@@ -550,7 +577,7 @@ function handle(e){
   if(a==="adh"){m.tn.a=m.tn.a===d.v?"":d.v;if(!/today|yesterday/.test(m.tn.a))m.ld=null;if(m.tn.a==="Doesn't know")m.ld={k:"unk",h:null,l:"Unknown · patient doesn't know"};log(p,m.name+": "+(m.tn.a||"cleared"));render();return;}
   if(a==="flag"){m.tn.f[d.v]=!m.tn.f[d.v];log(p,m.name+": "+(m.tn.f[d.v]?"flagged ":"unflagged ")+d.v.toLowerCase());if(d.v==="Call pharmacist"&&m.tn.f[d.v])p.msgs.push({from:"Technician",t:now(),x:"Please call me about "+m.name+"."});render();return;}
   if(a==="ld"){const c=LD.find(x=>x[0]===d.v);m.ld=m.ld&&m.ld.k===d.v?null:{k:c[0],l:c[1],h:c[2]};if(m.ld)log(p,"Last dose of "+m.name+": "+c[1].toLowerCase());render();return;}
-  if(a==="send"){const miss=p.meds.filter(needLD).length;if(miss&&!S.sendWarn){S.sendWarn=true;render();return;}p.sent=true;S.sendWarn=false;log(p,"Sent to pharmacist"+(miss?" · "+miss+" last doses missing":""));render();toast("Sent to the pharmacist");return;}
+  if(a==="send"){const miss=p.meds.filter(needLD).length+(wNow(p)?0:1);if(miss&&!S.sendWarn){S.sendWarn=true;render();return;}p.sent=true;S.sendWarn=false;log(p,"Sent to pharmacist"+(miss?" · "+miss+" last doses missing":""));render();toast("Sent to the pharmacist");return;}
   if(a==="sendgo"){p.sent=true;S.sendWarn=false;log(p,"Sent to pharmacist with last doses missing");render();return;}
   if(a==="pick"){m.pick=d.v;log(p,m.name+" settled from "+SRC[d.v].toLowerCase()+": "+m.src[d.v]);render();return;}
   if(a==="focus"){S.focus=d.m;if(S.wins.src.mode==="hidden"){S.wins.src.mode="tile";S.wins.src.order=-1;}render();const row=(POPS.src&&!POPS.src.closed?POPS.src.document:document).getElementById("src-"+d.m);if(row)row.scrollIntoView({block:"center"});return;}
