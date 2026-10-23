@@ -1663,6 +1663,66 @@ S=base("mixed");goStep(0);
   bar.style.cssText="position:sticky;top:0;z-index:50;padding:10px 16px;font:600 14px var(--f-body,system-ui);background:var(--info-soft,#e2eaff);color:var(--info,#2860e1);border-bottom:2px solid var(--info,#2860e1)";
   bar.textContent="SMART launch: connecting to the EHR…";document.body.prepend(bar);
   const all=(client,q)=>client.request(q,{pageLimit:0,flat:true,resolveReferences:["medicationReference"]}).catch(e=>({__err:String(e.message||e)}));
+
+  /* ---------- one-click record packet ---------- */
+  function e_(x){return String(x==null?"":x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+  function d_(x){return x?String(x).slice(0,10):"";}
+  function nm_(r){const c=r.medicationCodeableConcept;if(c)return c.text||(c.coding&&c.coding[0]&&c.coding[0].display)||"Unnamed medicine";const m=r.medicationReference;return(m&&(m.display||(m.code&&(m.code.text||(m.code.coding||[{}])[0].display))))||"Unnamed medicine";}
+  function sig_(r){const d=(r.dosageInstruction||r.dosage||[])[0];return d?(d.text||[(d.doseAndRate&&d.doseAndRate[0]&&d.doseAndRate[0].doseQuantity?d.doseAndRate[0].doseQuantity.value+" "+(d.doseAndRate[0].doseQuantity.unit||""):""),(d.timing&&d.timing.repeat&&d.timing.repeat.frequency?(d.timing.repeat.frequency===1?"once":d.timing.repeat.frequency+" times")+" every "+(d.timing.repeat.period===1?"":d.timing.repeat.period+" ")+({d:"day",h:"hours",wk:"week",mo:"month"}[d.timing.repeat.periodUnit]||d.timing.repeat.periodUnit||""):"")].filter(Boolean).join(" · ")||"Directions not in record"):"Directions not in record";}
+  function ing_(n){return String(n).toLowerCase().replace(/abuse-deterrent|\d+\s*hr|extended release|\d+(\.\d+)?\s*(mg|mcg|ml|unt|actuat)(\/\w+)?/g," ").trim().split(/\s+/)[0];}
+  function nd_(x){return String(x||"").replace(/\d+/g,"");}
+  function txt_(b64){try{return decodeURIComponent(escape(atob(b64)));}catch(e){try{return atob(b64);}catch(x){return"";}}}
+  function setupPacket(client,pid,pt,mr0,obs0){
+    const box=document.createElement("section");box.id="packet";box.setAttribute("aria-label","Record packet");
+    box.style.cssText="max-width:1200px;margin:12px auto;padding:0 16px;font:14px/1.45 var(--f-body,system-ui);color:var(--ink,#0f1b2d)";
+    box.innerHTML='<div style="background:var(--surface,#fff);border:2px solid var(--signal,#0a8a8f);border-radius:14px;padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:240px"><b style="font-size:17px">Record packet</b><div style="color:var(--muted,#56667c);font-size:13px">One click pulls prescriptions, pharmacy fills, the last hospital visit and its notes, recent notes, labs and body measurements from this record, lined up by date.</div></div><button type="button" id="pkGo" style="border:0;background:var(--signal,#0a8a8f);color:var(--signal-ink,#fff);border-radius:10px;padding:10px 16px;font-weight:800;font-size:15px;cursor:pointer">Pull the full record packet</button></div><div id="pkBody"></div>';
+    const bar=document.getElementById("smartBar");bar.parentNode.insertBefore(box,bar.nextSibling);
+    document.getElementById("pkGo").onclick=()=>pull(client,pid,pt,mr0,obs0);}
+  async function pull(client,pid,pt,mr0,obs0){
+    const body=document.getElementById("pkBody"),btn=document.getElementById("pkGo");btn.disabled=true;btn.textContent="Pulling…";
+    const t0=performance.now();
+    const q=(u)=>client.request(u,{pageLimit:2,flat:true}).catch(e=>({__err:String(e.message||e).split("\n")[0]}));
+    let [disp,docs,encs,labs]=await Promise.all([
+      q("MedicationDispense?patient="+pid+"&_count=100"),
+      q("DocumentReference?patient="+pid+"&_count=50&_sort=-date"),
+      q("Encounter?patient="+pid+"&_count=100&_sort=-date"),
+      q("Observation?patient="+pid+"&code=http://loinc.org|2160-0,http://loinc.org|33914-3,http://loinc.org|62238-1&_sort=-date&_count=10")]);
+    if(docs&&docs.__err){const d2=await q("DocumentReference?patient="+pid+"&category=clinical-note&_count=50");if(!d2.__err)docs=d2;}
+    const miss=[];[["Pharmacy fills",disp],["Notes",docs],["Visits",encs],["Labs",labs]].forEach(([l,r])=>{if(r&&r.__err)miss.push(l+" ("+r.__err.replace(/^.*?(\d{3}[^]*)$/,"$1").slice(0,40)+")");});
+    const A=r=>r&&!r.__err?r:[];disp=A(disp);docs=A(docs);encs=A(encs);labs=A(labs);
+    const enc=encs.filter(x=>/IMP|EMER|ACUTE|inpatient|emergency/i.test((x.class&&(x.class.code||x.class.display))||"")).sort((a,b)=>String((b.period||{}).start).localeCompare(String((a.period||{}).start)))[0];
+    const eEnd=enc?d_((enc.period||{}).end||(enc.period||{}).start):"";
+    const encDocs=enc?docs.filter(d=>(d.context&&(d.context.encounter||[]).some(r=>(r.reference||"").indexOf(enc.id)>=0))):[];
+    const sorted=docs.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+    const active=mr0.filter(r=>r.status==="active"),cut=new Date(Date.now()-730*864e5).toISOString().slice(0,10),inact=mr0.filter(r=>r.status!=="active"&&d_(r.authoredOn)>=cut);
+    const newSince=eEnd?active.filter(r=>d_(r.authoredOn)>eEnd):[];
+    const scr=labs.find(o=>o.code&&(o.code.coding||[]).some(c=>c.code==="2160-0")&&o.valueQuantity);
+    const wt=obs0.filter(o=>o.code&&(o.code.coding||[]).some(c=>c.code==="29463-7")&&o.valueQuantity).sort((a,b)=>String(b.effectiveDateTime).localeCompare(String(a.effectiveDateTime)))[0];
+    const ht=obs0.filter(o=>o.code&&(o.code.coding||[]).some(c=>c.code==="8302-2")&&o.valueQuantity).sort((a,b)=>String(b.effectiveDateTime).localeCompare(String(a.effectiveDateTime)))[0];
+    const age=pt.birthDate?Math.floor((Date.now()-new Date(pt.birthDate))/(365.25*864e5)):null;
+    let crcl="";if(scr&&wt&&age){const kg=wt.valueQuantity.value,s=scr.valueQuantity.value;let v=((140-age)*kg)/(72*s);if(pt.gender==="female")v*=0.85;crcl="~"+Math.round(v)+" mL/min (Cockcroft-Gault, record weight "+kg+" kg, SCr "+s+")";}
+    const secs=((performance.now()-t0)/1000).toFixed(1);
+    const card=(t,h,c)=>'<div style="background:var(--surface,#fff);border:1px solid var(--line,#d6e0eb);border-radius:12px;padding:12px 14px;display:grid;gap:8px'+(c?";border-left:5px solid "+c:"")+'"><b style="font-size:15px">'+t+"</b>"+h+"</div>";
+    const tbl=(head,rows)=>rows.length?'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><tr>'+head.map(x=>'<th style="text-align:left;padding:5px 7px;background:var(--sunk,#f3f6fa);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted,#56667c)">'+x+"</th>").join("")+"</tr>"+rows.map(r=>"<tr>"+r.map(x=>'<td style="padding:6px 7px;border-top:1px solid var(--line,#d6e0eb);vertical-align:top">'+x+"</td>").join("")+"</tr>").join("")+"</table></div>":'<span style="color:var(--muted,#56667c)">None returned by this record.</span>';
+    const noteRow=d=>{const ty=(d.type&&(d.type.text||(d.type.coding||[{}])[0].display))||"Note";const au=(d.author||[]).map(a=>nd_(a.display)).filter(Boolean).join(", ");return[e_(d_(d.date)),e_(ty)+(au?'<br><span style="color:var(--muted,#56667c)">'+e_(au)+"</span>":""),'<button type="button" data-note="'+e_(d.id)+'" style="border:1.5px solid var(--line,#d6e0eb);background:var(--surface,#fff);border-radius:7px;padding:2px 9px;font-weight:700;cursor:pointer">Show text</button><pre data-notebody="'+e_(d.id)+'" hidden style="white-space:pre-wrap;font:12.5px/1.5 var(--f-mono,monospace);max-height:320px;overflow:auto;margin:6px 0 0;background:var(--sunk,#f3f6fa);padding:8px;border-radius:8px"></pre>'];};
+    let h='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0"><span style="background:var(--good-soft,#dbf4e6);color:var(--good,#11864a);font-weight:800;font-size:12.5px;border-radius:99px;padding:3px 10px">Pulled in '+secs+" s</span>"+'<span style="background:var(--warn-soft,#ffefd2);color:var(--warn,#b36200);font-weight:800;font-size:12.5px;border-radius:99px;padding:3px 10px">Level 1 · from records · not yet confirmed by patient, family or pharmacist</span>'+(miss.length?'<span style="color:var(--muted,#56667c);font-size:12.5px">Not available from this server: '+e_(miss.join("; "))+"</span>":"")+"</div>";
+    h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px">';
+    h+=card("Changes since the last hospital visit",enc?('<span>Last '+e_({IMP:"inpatient",EMER:"emergency",ACUTE:"inpatient",OBSENC:"observation"}[(enc.class||{}).code]||"hospital")+" stay "+e_(d_((enc.period||{}).start))+(eEnd&&eEnd!==d_((enc.period||{}).start)?" to "+e_(eEnd):"")+(enc.type&&enc.type[0]?" · "+e_(enc.type[0].text||(enc.type[0].coding||[{}])[0].display):"")+"</span>"+(newSince.length?"<span><b>Started since:</b> "+newSince.map(r=>e_(nm_(r))+" ("+e_(d_(r.authoredOn))+")").join("; ")+"</span>":"<span>No new prescriptions since that visit.</span>")+(encDocs.length?"<span>"+encDocs.length+" note"+(encDocs.length>1?"s":"")+" from that visit below.</span>":"")):'<span style="color:var(--muted,#56667c)">No hospital or ED visit found in this record.</span>',"var(--signal,#0a8a8f)");
+    h+=card("Kidney function and body",'<span>SCr: '+(scr?"<b>"+scr.valueQuantity.value+" "+e_(scr.valueQuantity.unit||"")+"</b> · "+e_(d_(scr.effectiveDateTime)):"none in record")+"</span><span>CrCl: "+(crcl?e_(crcl):"can't calculate without SCr and a weight")+"</span><span>Weight: "+(wt?wt.valueQuantity.value+" "+e_(wt.valueQuantity.unit)+" · "+e_(d_(wt.effectiveDateTime))+" (record, not today's)":"none")+"</span><span>Height: "+(ht?ht.valueQuantity.value+" "+e_(ht.valueQuantity.unit)+" · "+e_(d_(ht.effectiveDateTime)):"none")+"</span>");
+    h+="</div>";
+    h+='<div style="display:grid;gap:10px;margin-top:10px">';
+    const cntI={};active.forEach(r=>{const k=ing_(nm_(r));cntI[k]=(cntI[k]||0)+1;});const dupN=Object.keys(cntI).filter(k=>cntI[k]>1).length;
+    h+=card("Active prescriptions ("+active.length+")"+(dupN?' <span style="background:var(--bad-soft,#fde3e4);color:var(--bad,#d3313a);font-size:12px;border-radius:99px;padding:2px 9px">'+dupN+" drug"+(dupN>1?"s":"")+" active twice</span>":""),tbl(["Medicine","Directions","Written","Prescriber"],active.sort((a,b)=>String(b.authoredOn).localeCompare(String(a.authoredOn))).map(r=>[e_(nm_(r))+(cntI[ing_(nm_(r))]>1?' <span style="color:var(--bad,#d3313a);font-weight:800;font-size:12px">· active twice</span>':""),e_(sig_(r)),e_(d_(r.authoredOn)),e_(nd_((r.requester||{}).display||""))])));
+    h+=card("Stopped or completed in the last 2 years ("+inact.length+")",tbl(["Medicine","Status","Written"],inact.map(r=>[e_(nm_(r)),e_(r.status),e_(d_(r.authoredOn))])));
+    h+=card("Pharmacy fills ("+disp.length+")",disp.length?tbl(["Medicine","Filled","Quantity · days supply"],disp.sort((a,b)=>String(b.whenHandedOver||"").localeCompare(String(a.whenHandedOver||""))).slice(0,30).map(r=>[e_(nm_(r)),e_(d_(r.whenHandedOver||r.whenPrepared)),e_(((r.quantity||{}).value||"")+" · "+(((r.daysSupply||{}).value)||"")+" d")])):'<span style="color:var(--muted,#56667c)">None returned. In Epic this is where outside fills from the Surescripts feed and the hospital\'s own pharmacies would appear.</span>');
+    if(enc&&encDocs.length)h+=card("Notes from the last hospital visit",tbl(["Date","Note","Text"],encDocs.map(noteRow)),"var(--signal,#0a8a8f)");
+    h+=card("Most recent notes",tbl(["Date","Note","Text"],sorted.slice(0,6).map(noteRow)));
+    h+="</div>";
+    body.innerHTML=h;btn.textContent="Pull again";btn.disabled=false;
+    body.querySelectorAll("[data-note]").forEach(b=>b.onclick=async()=>{const id=b.getAttribute("data-note"),pre=body.querySelector('[data-notebody="'+CSS.escape(id)+'"]');if(!pre.hidden){pre.hidden=true;b.textContent="Show text";return;}
+      const d=docs.find(x=>x.id===id),at=d&&d.content&&d.content[0]&&d.content[0].attachment;let t="";
+      if(at&&at.data)t=txt_(at.data);else if(at&&at.url){try{const r=await client.request(at.url);t=typeof r==="string"?r:(r&&r.data?txt_(r.data):JSON.stringify(r).slice(0,2000));}catch(e){t="Couldn't open this note: "+(e.message||e);}}
+      pre.textContent=(t||"No text in this note.").slice(0,6000);pre.hidden=false;b.textContent="Hide text";});}
   FHIR.oauth2.ready().then(async client=>{
     const pid=client.patient.id;if(!pid)throw new Error("No patient in launch context. In the launcher, pick a patient.");
     bar.textContent="SMART launch: reading patient "+pid+" over FHIR…";
@@ -1679,6 +1739,7 @@ S=base("mixed");goStep(0);
     let user="";try{user=client.getFhirUser()||"";}catch(e){}
     const ctx={iss:client.state.serverUrl,pid,user,enc:client.encounter.id||"",notes};
     window.__ottleySmart({resourceType:"Bundle",type:"collection",entry},"SMART launch · "+nm,ctx);
+    setupPacket(client,pid,pt,(res[0]&&!res[0].__err)?res[0]:[],(res[3]&&!res[3].__err)?res[3]:[]);
     const cnt=entry.length-1,act=entry.filter(e=>/^Medication(Request|Statement)$/.test(e.resource.resourceType)&&e.resource.status==="active").length,inact=entry.filter(e=>/^Medication(Request|Statement)$/.test(e.resource.resourceType)&&e.resource.status!=="active").length;
     bar.style.background="var(--good-soft,#dbf4e6)";bar.style.color="var(--good,#11864a)";bar.style.borderColor="var(--good,#11864a)";
     bar.textContent="Launched inside the EHR via SMART on FHIR · "+client.state.serverUrl.replace(/^https?:\/\//,"")+" · patient "+pid+(ctx.enc?" · encounter "+ctx.enc:"")+(user?" · user "+user:"")+" · "+cnt+" FHIR resources read ("+act+" active prescription"+(act===1?"":"s")+(inact?", "+inact+" inactive":"")+")"+(notes.length?" · not available: "+notes.join("; "):"")+". Synthetic sandbox data.";

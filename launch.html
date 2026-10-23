@@ -14,7 +14,7 @@ button{font:inherit;font-weight:700;padding:9px 14px;border-radius:8px;border:0;
 <script>
 (function(){
 const qs=new URLSearchParams(location.search);
-const SCOPE="launch launch/patient openid fhirUser patient/Patient.read patient/MedicationRequest.read patient/MedicationStatement.read patient/AllergyIntolerance.read patient/Observation.read";
+const SCOPE="launch launch/patient openid fhirUser patient/Patient.read patient/MedicationRequest.read patient/MedicationStatement.read patient/AllergyIntolerance.read patient/Observation.read patient/DocumentReference.read patient/Binary.read patient/Encounter.read patient/MedicationDispense.read";
 const SERVERS={epic:"https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4",smart:"https://launch.smarthealthit.org/v/r4/fhir"};
 const box=document.getElementById("box");
 let saved="";try{saved=localStorage.getItem("ottley-client-id")||"";}catch(e){}
