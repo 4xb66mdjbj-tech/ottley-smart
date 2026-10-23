@@ -160,6 +160,35 @@ textarea.inp{width:100%;min-height:56px;resize:vertical}
 .mhn .kv div{display:grid;gap:2px;font-size:13.5px}
 .mhn .chg{font-size:12px;color:var(--warn);font-weight:700}
 .mhn .disc{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+
+/* coverage-gap demo */
+.demo{background:var(--ott-soft);border-bottom:1px solid var(--line);padding:10px 14px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center}
+@media (max-width:760px){.demo{grid-template-columns:minmax(0,1fr)}}
+.demo .clk{font:700 30px var(--f-mono);color:var(--ott)}
+.demo .cap{font-size:14px;line-height:1.45;min-width:0}
+.demo .cap b{display:block;font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--ott)}
+.gapban{background:var(--warn-soft);color:var(--ink);border-bottom:1px solid var(--line);padding:7px 14px;font-size:13px;display:flex;gap:6px 16px;flex-wrap:wrap}
+.gapban b{color:var(--warn)}
+.phone{width:min(330px,100%);margin:0 auto;background:#0d1724;border-radius:30px;padding:14px 12px 18px;box-shadow:var(--shadow)}
+.screen{background:#fbfaf7;color:#1d2328;border-radius:20px;min-height:460px;padding:16px 14px;display:grid;gap:10px;align-content:start;font-size:14px}
+.screen h4{margin:0;font-size:17px}
+.screen .sms{background:#e9edf2;border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.4}
+.screen input{border:1.5px solid #c9d2dc;border-radius:9px;padding:8px 10px;font-size:16px;background:#fff;color:#1d2328;width:100%}
+.screen .go{background:#0a8a8f;color:#fff;border:0;border-radius:10px;padding:10px;font-weight:800;font-size:15px}
+.screen .go:disabled{opacity:.45}
+.screen .lnk{background:none;border:0;color:#0a6a6e;font-weight:700;text-decoration:underline;padding:2px 0;text-align:left}
+.screen .pm{border:1px solid #dde3ea;border-radius:12px;padding:8px 10px;display:grid;gap:6px;background:#fff}
+.screen .pm b{font-size:14px}.screen .pm small{color:#5b6672}
+.screen .ch{display:flex;flex-wrap:wrap;gap:4px}
+.screen .ch button{border:1.5px solid #c9d2dc;background:#fff;color:#1d2328;border-radius:999px;padding:3px 9px;font-size:12.5px;font-weight:700}
+.screen .ch button[aria-pressed="true"]{background:#0a8a8f;border-color:#0a8a8f;color:#fff}
+.screen .err{color:#b3261e;font-weight:700;font-size:13px}
+.qrow{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.qrow .rk{font:700 15px var(--f-mono);text-align:center;border-radius:7px;padding:3px 0;background:var(--gray-soft)}
+.qrow .rk.hi{background:var(--bad-soft);color:var(--bad)}
+.qcount{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.qcount div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;display:grid}
+.qcount b{font:700 20px var(--f-mono)}.qcount span{font-size:11.5px;color:var(--muted);font-weight:700}
 </style>
 
 <div class="app" id="app">
@@ -168,8 +197,11 @@ textarea.inp{width:100%;min-height:56px;resize:vertical}
     <span class="sp"></span>
     <label for="role">Signed in as</label>
     <select id="role"><option value="tech">ED technician</option><option value="rph">ED pharmacist</option><option value="md">ED provider</option><option value="rn">ED nurse</option></select>
+    <button class="btn sm" type="button" data-act="demo">Tonight's coverage gap · guided demo</button>
     <button class="btn sm" type="button" data-act="reset">Reset cases</button>
   </div>
+  <div class="gapban" id="gapban" hidden></div>
+  <div class="demo" id="demoBar" hidden></div>
   <div class="body">
     <nav class="track" aria-label="Track board"><h2>ED track board · trial cases</h2><div id="track"></div></nav>
     <div class="main">
@@ -206,7 +238,7 @@ const POMD=["Secure with patient belongings","Send home with family","Pharmacy h
 
 /* ---------- the five trial cases (invented) ---------- */
 const CASES=[
- {id:"c1",pharm:"Riverside Pharmacy #112 · 410-555-0142",pcp:"Dr. Alan Brooks · 410-555-0177",abx:"no",room:"ED 12",name:"Margaret Hollis",age:84,sex:"F",arr:"09:40",why:"Shortness of breath, CHF",allergy:"Sulfa (rash)",wt:"61 kg stated",contact:"Daughter at bedside",
+ {id:"c1",dob:"04/02/1942",code:"304 118",cgw:"Daughter",pharm:"Riverside Pharmacy #112 · 410-555-0142",pcp:"Dr. Alan Brooks · 410-555-0177",abx:"no",room:"ED 12",name:"Margaret Hollis",age:84,sex:"F",arr:"09:40",why:"Shortness of breath, CHF",allergy:"Sulfa (rash)",wt:"61 kg stated",contact:"Daughter at bedside",
   goal:"Elderly patient on 15 meds. Practice moving fast through routine lines and catching the two that matter.",
   script:["Daughter manages the pill box. Everything is taken as directed unless listed here.","Furosemide went up to 40 mg in late September (cardiology).","Lisinopril was stopped by the cardiologist in September.","Apixaban and glargine were last given last night; everything else this morning about 7.","Calcium + vitamin D is over the counter, twice a day."],
   meds:[
@@ -226,7 +258,7 @@ const CASES=[
    ["acet","Acetaminophen","500 mg every 6 h as needed",{pta:"500 mg every 6 h as needed",fam:"500 mg every 6 h as needed"}],
    ["docu","Docusate","100 mg twice daily",{pta:"100 mg twice daily"}]],
   pom:[]},
- {id:"c2",pharm:"Harbor Drug · 410-555-0190",pcp:"Dr. Mei Chen · 410-555-0123",abx:"no",room:"ED 4",name:"Luis Ferreira",age:58,sex:"M",arr:"10:15",why:"COPD flare",allergy:"No known drug allergies",wt:"88.4 kg measured",contact:"Brought a bag of his own medicines",
+ {id:"c2",dob:"09/23/1968",code:"527 640",cgw:"Patient",pharm:"Harbor Drug · 410-555-0190",pcp:"Dr. Mei Chen · 410-555-0123",abx:"no",room:"ED 4",name:"Luis Ferreira",age:58,sex:"M",arr:"10:15",why:"COPD flare",allergy:"No known drug allergies",wt:"88.4 kg measured",contact:"Brought a bag of his own medicines",
   goal:"A bag of the patient's own medicines. Practice the accept or reject step and the nurse handoff.",
   script:["He brought a bag: tiotropium inhaler, fluticasone-salmeterol inhaler, an amlodipine bottle, and a tub of psyllium.","The amlodipine bottle is dated 2024; he says he has a newer one at home and takes it every morning.","Prednisone is from urgent care on 10/15, a 5-day course; today is day 6, so he finished it.","All inhalers used this morning about 6."],
   meds:[
@@ -237,7 +269,7 @@ const CASES=[
    ["amlo","Amlodipine","5 mg daily",{pta:"5 mg daily",drf:"5 mg daily · 10/03",bottle:"Bottle dated 2024"}],
    ["psyl","Psyllium powder","1 tablespoon daily",{fam:"1 tablespoon daily",bottle:"In bag"}]],
   pom:[{n:"Tiotropium inhaler",q:"1 inhaler",form:false,cat:"rx"},{n:"Fluticasone-salmeterol 250/50 inhaler",q:"1 inhaler",form:true,cat:"rx"},{n:"Amlodipine 5 mg bottle (dated 2024)",q:"about 20 tablets",form:true,cat:"rx",exp:true},{n:"Psyllium powder",q:"1 tub",form:false,cat:"otc"}]},
- {id:"c3",pharm:"Northpoint Pharmacy · 410-555-0168",pcp:"Dr. Ruth Adeyemi · 410-555-0111",abx:"yes · amoxicillin, finished 10/12",room:"ED 19",name:"Dana Whitfield",age:47,sex:"F",arr:"11:05",why:"Palpitations",allergy:"Codeine (nausea)",wt:"72 kg stated",contact:"Patient, own phone",
+ {id:"c3",dob:"01/30/1979",code:"715 902",cgw:"Patient",pharm:"Northpoint Pharmacy · 410-555-0168",pcp:"Dr. Ruth Adeyemi · 410-555-0111",abx:"yes · amoxicillin, finished 10/12",room:"ED 19",name:"Dana Whitfield",age:47,sex:"F",arr:"11:05",why:"Palpitations",allergy:"Codeine (nausea)",wt:"72 kg stated",contact:"Patient, own phone",
   goal:"Outside fill history disagrees with the old prior list on three meds. Practice settling conflicts from the source grid.",
   script:["Levothyroxine went down to 88 mcg at her last visit in September.","She switched from metoprolol tartrate twice a day to metoprolol succinate 50 mg once a day in October.","She takes gabapentin 300 mg twice a day, not three times.","Morning meds taken at 7 today; gabapentin also at bedtime yesterday.","She finished amoxicillin for a sinus infection on 10/12."],
   meds:[
@@ -247,7 +279,7 @@ const CASES=[
    ["esci","Escitalopram","10 mg daily",{pta:"10 mg daily",drf:"10 mg daily · 10/01"}],
    ["ocp","Norethindrone-ethinyl estradiol","1 tablet daily",{drf:"1 tablet daily · 09/28"}]],
   pom:[]},
- {id:"c4",pharm:"Mail order (Express benefit) · 1-800-555-0100",pcp:"Dr. Sam Patel · 410-555-0155",abx:"no",room:"ED 7",name:"Raymond Okafor",age:63,sex:"M",arr:"12:20",why:"High blood sugar",allergy:"Lisinopril (cough)",wt:"No weight yet",contact:"Wife on the phone",
+ {id:"c4",dob:"06/11/1963",code:"268 351",cgw:"Wife",pharm:"Mail order (Express benefit) · 1-800-555-0100",pcp:"Dr. Sam Patel · 410-555-0155",abx:"no",room:"ED 7",name:"Raymond Okafor",age:63,sex:"M",arr:"12:20",why:"High blood sugar",allergy:"Lisinopril (cough)",wt:"No weight yet",contact:"Wife on the phone",
   goal:"Insulin doses that don't match and a last dose nobody knows. Practice not letting insulin through on a guess.",
   script:["Wife says glargine went up to 32 units at bedtime two months ago.","She isn't sure if he took it last night.","Lispro: sliding scale with meals; he skipped lunch today.","He stopped empagliflozin in August because of cost."],
   meds:[
@@ -258,7 +290,7 @@ const CASES=[
    ["losa","Losartan","50 mg daily",{pta:"50 mg daily",drf:"50 mg daily · 10/04"}],
    ["ator","Atorvastatin","40 mg at bedtime",{pta:"40 mg at bedtime",drf:"40 mg at bedtime · 09/29"}]],
   pom:[]},
- {id:"c5",pharm:"Riverside Pharmacy #112 · 410-555-0142",pcp:"Dr. Alan Brooks · 410-555-0177",abx:"no",room:"ED 22",name:"Gloria Pettiway",age:76,sex:"F",arr:"13:30",why:"Fall at home, head strike",allergy:"No known drug allergies",wt:"64 kg stated",contact:"Son on the phone",
+ {id:"c5",dob:"03/14/1950",code:"482 915",cgw:"Son",pharm:"Riverside Pharmacy #112 · 410-555-0142",pcp:"Dr. Alan Brooks · 410-555-0177",abx:"no",room:"ED 22",name:"Gloria Pettiway",age:76,sex:"F",arr:"13:30",why:"Fall at home, head strike",allergy:"No known drug allergies",wt:"64 kg stated",contact:"Son on the phone",
   goal:"Anticoagulant with an unclear last dose after a fall. Practice getting the time before anything is verified.",
   script:["Son thinks she took apixaban this morning but isn't sure; she lives alone.","Warfarin was switched to apixaban in 2024; she has none at home.","Amiodarone 200 mg daily, metoprolol tartrate 25 mg twice daily, furosemide 20 mg daily: taken as directed.","Alendronate on Sundays."],
   meds:[
@@ -270,12 +302,12 @@ const CASES=[
    ["alen","Alendronate","70 mg weekly (Sundays)",{pta:"70 mg weekly",drf:"70 mg weekly · 09/14"}]],
   pom:[]}
 ];
-function freshCase(c){const o=clone(c);o.meds=o.meds.map(([id,name,val,src])=>({id,name,val,src,hr:HR.test(name),tn:{a:"",f:{},x:""},ld:null,pick:null,matched:false,stopped:false,dec:null}));o.pom=o.pom.map(x=>Object.assign({dec:null,reason:"",disp:"",ndone:false},x));o.hist={src:{},managed:"",inote:""};o.msgs=[];o.sent=false;o.fin=null;o.att={ck:{},sig:"",open:false};o.close="";o.log=[];o.opened=null;return o;}
+function freshCase(c){const o=clone(c);o.meds=o.meds.map(([id,name,val,src])=>({id,name,val,src,hr:HR.test(name),tn:{a:"",f:{},x:""},ld:null,pick:null,matched:false,stopped:false,dec:null}));o.pom=o.pom.map(x=>Object.assign({dec:null,reason:"",disp:"",ndone:false},x));o.hist={src:{},managed:"",inote:""};o.ph={st:"sms",cg:{},err:"",wt:""};o.msgs=[];o.sent=false;o.fin=null;o.att={ck:{},sig:"",open:false};o.close="";o.log=[];o.opened=null;return o;}
 
 /* ---------- state ---------- */
 let S={role:"tech",cur:"c1",act:"ott",pts:CASES.map(freshCase),wins:null,fb:{}};
 const DEFAULT_WINS={tech:["meds","hist","pom","msgs","script"],rph:["src","meds","msgs","note"],md:["prelim","note"],rn:["nurse","pom","msgs"]};
-const PANELS={hist:"History details",meds:"Medication list",src:"Source comparison",msgs:"Messages",pom:"Own medications",note:"Med history note",script:"Bedside facts (trial script)",prelim:"Preliminary list",nurse:"For the nurse"};
+const PANELS={queue:"Tonight's queue",phone:"Family's phone",hist:"History details",meds:"Medication list",src:"Source comparison",msgs:"Messages",pom:"Own medications",note:"Med history note",script:"Bedside facts (trial script)",prelim:"Preliminary list",nurse:"For the nurse"};
 function initWins(){S.wins={};Object.keys(PANELS).forEach(k=>S.wins[k]={mode:"hidden",wide:false,pt:null,x:80,y:120,w:null});(DEFAULT_WINS[S.role]||[]).forEach((k,i)=>{S.wins[k].mode="tile";S.wins[k].order=i;});}
 initWins();
 try{const f=JSON.parse(localStorage.getItem("ottws-fb")||"{}");if(f&&typeof f==="object")S.fb=f;}catch(e){}
@@ -283,7 +315,7 @@ const P=id=>S.pts.find(p=>p.id===id),cur=()=>P(S.cur);
 function log(p,x){p.log.push({t:now(),who:roleName(),x});}
 function canEnter(){return S.role==="tech"||!!S.entry;}
 function mark(p){p.hist.by=p.hist.by||[];const n=roleName();if(p.hist.by.indexOf(n)<0)p.hist.by.push(n);}
-function roleName(){return{tech:"Technician",rph:"Pharmacist",md:"Provider",rn:"Nurse"}[S.role];}
+function roleName(){return{tech:"Technician",rph:S.after?"Central pharmacist":"Pharmacist",md:"Provider",rn:"Nurse"}[S.role];}
 function now(){const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
 
 /* ---------- med logic ---------- */
@@ -323,7 +355,7 @@ function summaryText(p){const act=p.meds.filter(m=>!(m.stopped||m.tn.a==="Stoppe
   out.push(act.length+" home medication"+(act.length===1?"":"s")+(p.fin?" verified":" so far")+(stop.length?"; "+stop.length+" no longer taken ("+stop.map(m=>m.name.toLowerCase()).join(", ")+")":"")+".");
   const ch=act.filter(priorChange);if(ch.length)out.push("Changed from the prior list: "+ch.map(m=>m.name.toLowerCase()+" now "+value(m)+" (was "+m.src.pta.split(" · ")[0]+")").join("; ")+".");
   const nw=act.filter(m=>!m.src.pta);if(nw.length)out.push("Not on the prior list: "+nw.map(m=>m.name.toLowerCase()).join(", ")+".");
-  const hr=act.filter(m=>m.hr);if(hr.length)out.push("High-risk: "+hr.map(m=>m.name.toLowerCase()+(m.ld?(m.ld.k==="unk"?" last dose unknown (patient doesn't know)":" last taken "+m.ld.l.toLowerCase()):" last dose not documented")).join("; ")+".");
+  const hr=act.filter(m=>m.hr);if(hr.length)out.push("High-risk: "+hr.map(m=>m.name.toLowerCase()+(m.ld?(m.ld.k==="unk"?" last dose unknown ("+(m.ld.l.split(" · ")[1]||"patient doesn't know")+")":" last taken "+m.ld.l.toLowerCase()):" last dose not documented")).join("; ")+".");
   const fl=act.filter(m=>FLAGS.some(([f,x])=>x&&m.tn.f[f])||m.tn.a==="Not taking, but should be");if(fl.length)out.push("Flagged: "+fl.map(m=>m.name.toLowerCase()+" ("+(FLAGS.filter(([f,x])=>x&&m.tn.f[f]).map(([f])=>f.toLowerCase()).concat(m.tn.a==="Not taking, but should be"?["not taking, but should be"]:[]).join(", "))+")").join("; ")+".");
   if(p.pom.length){const acc=p.pom.filter(x=>x.dec==="accept").length,rej=p.pom.filter(x=>x.dec==="reject").length,pen=p.pom.length-acc-rej;out.push("Own medications: "+[acc?acc+" accepted":"",rej?rej+" not used":"",pen?pen+" pending":""].filter(Boolean).join(", ")+".");}
   if(/^yes/i.test(p.abx))out.push("Recent anti-infective: "+p.abx.replace(/^yes · /i,"")+".");
@@ -343,6 +375,48 @@ function noteHTML(p){const by=p.hist.by||[],rphOnly=by.length&&by.indexOf("Techn
   const [ph,pn]=p.pharm.split(" · "),[dr,dn]=p.pcp.split(" · ");
   h+='<div class="kv"><div><h4>Retail pharmacy</h4><span>'+esc(ph)+"<br>"+esc(pn||"")+'</span></div><div><h4>Primary care provider</h4><span>'+esc(dr)+"<br>"+esc(dn||"")+'</span></div><div><h4>Allergies</h4><span>'+esc(p.allergy)+'</span></div><div><h4>Recent anti-infective use</h4><span>'+esc(p.abx.charAt(0).toUpperCase()+p.abx.slice(1))+'</span></div><div><h4>Medications managed at home by</h4><span>'+esc(p.hist.managed||"Not documented")+"</span></div></div>";
   h+='<div style="font-size:13.5px">Please call the pharmacy department if you have any questions.</div><div class="disc">'+esc(BPMH)+"</div></article>";return h;}
+
+
+/* ---------- tonight's coverage gap: queue, phone, guided demo ---------- */
+const FILL=[["ED 3",81,"F","Weakness, from facility",8],["ED 9",67,"M","Chest pain",8],["ED 15",72,"F","Confusion",7],["ED 6",54,"M","Cellulitis",5],["ED 11",39,"F","Asthma",4],["ED 26",88,"M","Fall",7],["ED 2",45,"F","Abdominal pain",3],["ED 17",60,"M","Syncope",6],["ED 30",29,"M","Back pain",2]];
+const RISK={c1:9,c2:5,c3:6,c4:8,c5:9};
+function fillState(i,step){const k=(i*37+step*11)%10;if(step<2)return["Waiting · nothing started","t-gray"];if(step<4)return k<6?["Draft building · link sent","t-info"]:["Records in · no answer yet","t-warn"];if(step<7)return k<5?["Family answered · ready to verify","t-ott"]:k<7?["Needs bedside","t-bad"]:["Draft building","t-info"];return k<6?["Verified","t-good"]:k<8?["Family answered · ready","t-ott"]:["Needs bedside","t-bad"];}
+function liveState(p){if(p.fin)return["Verified","t-good"];if(p.sent)return["With pharmacist","t-info"];if(p.ph.st==="done")return["Family answered · ready","t-ott"];if(S.demo&&S.demo.i>=1)return["Draft building · link sent","t-info"];return["Waiting · nothing started","t-gray"];}
+function pQueue(){const step=S.demo?S.demo.i:0;const rows=S.pts.map(p=>({room:p.room,age:p.age,sex:p.sex,why:p.why,risk:RISK[p.id],st:liveState(p),id:p.id})).concat(FILL.map((f,i)=>({room:f[0],age:f[1],sex:f[2],why:f[3],risk:f[4],st:fillState(i,step)}))).sort((a,b)=>b.risk-a.risk);
+  const c={};rows.forEach(r=>{c[r.st[1]]=(c[r.st[1]]||0)+1;});
+  return'<div class="qcount"><div><b>'+rows.length+'</b><span>Need a history</span></div><div><b>'+((c["t-info"]||0)+(c["t-warn"]||0))+'</b><span>Building</span></div><div><b>'+(c["t-ott"]||0)+'</b><span>Family answered</span></div><div><b>'+(c["t-good"]||0)+'</b><span>Verified</span></div></div><div class="muted" style="font-size:12.5px">Ranked by risk, not by who is quickest. Live trial cases open in the chart; the others are background patients.</div>'+rows.map(r=>'<div class="qrow"><span class="rk'+(r.risk>=8?" hi":"")+'">'+r.risk+'</span><span><b>'+esc(r.room)+" · "+r.age+" "+r.sex+"</b> · "+esc(r.why)+(r.id?' <button class="btn sm" type="button" data-act="pt" data-v="'+r.id+'">Open</button>':"")+'</span><span class="tag '+r.st[1]+'">'+esc(r.st[0])+"</span></div>").join("");}
+function pPhone(p){const ph=p.ph,who=p.cgw,self=who==="Patient",her=self?"your":p.sex==="F"?"her":"his";
+  let b='<div class="phone"><div class="screen">';
+  if(ph.st==="sms")b+='<div class="muted" style="font-size:12px">Messages · now</div><div class="sms">Harbor Hospital: our pharmacy team asks for help reviewing '+(self?"your":"a family member's")+' medicines. Tap to start: harbor.example/r/7Q2. Your nurse will give you a 6-digit code. Reply STOP to opt out.</div><button class="go" type="button" data-act="ph" data-v="open">Open the link</button>';
+  else if(ph.st==="code")b+='<h4>Enter the code from the nurse</h4><p style="margin:0">For your privacy, the code never comes by text.</p><label class="vh" for="phc-'+p.id+'">Code</label><input id="phc-'+p.id+'" inputmode="numeric" placeholder="6 digits">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="code">Continue</button><button class="lnk" type="button" data-act="ph" data-v="wrong">This isn\'t someone I know</button>';
+  else if(ph.st==="dob")b+='<h4>Confirm the date of birth</h4><p style="margin:0">Of the person in the emergency department.</p><label class="vh" for="phd-'+p.id+'">Date of birth</label><input id="phd-'+p.id+'" placeholder="MM/DD/YYYY">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="dob">Continue</button>';
+  else if(ph.st==="wt")b+='<h4>About how much does '+(self?"you weigh":(p.sex==="F"?"she":"he")+" weigh")+'?</h4><p style="margin:0">A recent number helps with dosing. Skip if you don\'t know.</p><label class="vh" for="phw-'+p.id+'">Weight in pounds</label><input id="phw-'+p.id+'" inputmode="decimal" placeholder="Pounds">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="wt">Continue</button><button class="lnk" type="button" data-act="ph" data-v="wtskip">Skip</button>';
+  else if(ph.st==="list"){const ms=p.meds.filter(m=>!/norethindrone|estradiol/i.test(m.name));const n=ms.filter(m=>ph.cg[m.id]&&ph.cg[m.id].a).length;
+    b+='<h4>Is '+(self?"this":"this")+' still right?</h4><p style="margin:0;font-size:13px">We found these in '+her+' records. Tap one answer each. "Not sure" is fine.</p>'+ms.map(m=>{const c=ph.cg[m.id]||{};return'<div class="pm"><b>'+esc(m.name)+'</b><small>'+esc(value(m)||"dose not listed")+'</small><div class="ch">'+[["yes","Still taking"],["no","Stopped"],["diff","Different dose"],["unsure","Not sure"]].map(([k,l])=>'<button type="button" data-act="cg" data-m="'+m.id+'" data-v="'+k+'" aria-pressed="'+(c.a===k)+'">'+l+"</button>").join("")+"</div>"+(c.a==="yes"&&!prn(m)?'<small>Last dose?</small><div class="ch">'+[["am","This morning"],["noon","Midday"],["eve","Last evening"],["bed","Bedtime"],["ns","Not sure"]].map(([k,l])=>'<button type="button" data-act="cgld" data-m="'+m.id+'" data-v="'+k+'" aria-pressed="'+(c.ld===k)+'">'+l+"</button>").join("")+"</div>":"")+"</div>";}).join("")+'<button class="go" type="button" data-act="ph" data-v="send"'+(n<ms.length?" disabled":"")+">Send to the pharmacy ("+n+" of "+ms.length+")</button>";}
+  else if(ph.st==="wrong")b+='<h4>Thanks for telling us</h4><p style="margin:0">This link is closed. Nothing about the patient was shown.</p>';
+  else b+='<h4>Thank you</h4><p style="margin:0">The pharmacy team has '+her+' list. A pharmacist reviews every answer before anything is ordered. You can close this page.</p>';
+  b+="</div></div>";
+  const sideNote=S.role==="rn"||S.role==="tech"?'<div class="alert t-info" style="margin-top:8px"><b>Code to give in person:</b> <span class="mono">'+esc(p.code)+"</span> · DOB check: "+esc(p.dob)+"</div>":'<div class="muted" style="font-size:12px;margin-top:6px">Trial: the code and DOB show to the nurse or tech signed in.</div>';
+  return'<div class="muted" style="font-size:12.5px">'+esc(who)+(self?"'s own phone":"'s phone")+" · what they see</div>"+b+sideNote;}
+function applyFamily(p){const who=p.cgw.toLowerCase();Object.keys(p.ph.cg).forEach(id=>{const m=p.meds.find(x=>x.id===id),c=p.ph.cg[id];if(!m)return;
+    if(c.a==="yes"){const h={am:8,noon:12,eve:-6,bed:-3}[c.ld];const tod={am:"Morning",noon:"Noon",eve:"Evening",bed:"Bedtime"}[c.ld];m.tn.a=c.ld==="eve"||c.ld==="bed"?"Taking as directed, yesterday":"Taking as directed, today";if(c.ld==="ns")m.tn.a="Doesn't know";m.ld=c.ld==="ns"?{k:"unk",h:null,l:"Unknown · "+who+" not sure"}:c.ld?{k:tod,h:h,l:(h<0?"Yesterday ":"Today ")+tod.toLowerCase()+" · per "+who}:null;m.src.fam=(m.src.fam||value(m))+" · "+who+" via link";}
+    else if(c.a==="no"){m.tn.a="Stopped / not taking";m.src.fam="Stopped · "+who+" via link";}
+    else if(c.a==="diff"){m.tn.a="Taking differently than Rx";m.src.fam="Different dose · "+who+" via link";}
+    else if(c.a==="unsure"){m.tn.a="Doesn't know";m.ld={k:"unk",h:null,l:"Unknown · "+who+" not sure"};}
+    m.tn.x=m.tn.x||("Per "+who+" via link");});
+  p.hist.src[p.cgw==="Patient"?"The Patient (in-person)":"Family/Caregiver"]=true;p.hist.by=p.hist.by||[];log(p,p.cgw+" confirmed the list on the link");}
+const DEMO=[
+ {t:"22:40",k:"The setup",x:"Tonight's staffing note: no onsite ED pharmacist after 23:30, and a gap in med history techs from 02:30 to 06:00. Central covers med history review and verifies admission orders from DrFirst. 14 patients need a history.",go(){S.role="tech";S.cur="c5";layout(["queue","phone","meds"]);}},
+ {t:"22:45",k:"At registration",x:"Every arrival gets a link to the patient or family, and outside records pull in. Nobody waits for the tech to be free; drafts start building for all 14 at once.",go(){S.role="tech";layout(["queue","phone","meds"]);}},
+ {t:"22:52",k:"The family's phone",x:"Gloria's son gets a text with no names in it. The nurse gives him the 6-digit code in person. Try it: open the link on the phone, enter 482 915, then her date of birth, 03/14/1950.",go(){S.role="rn";S.cur="c5";layout(["phone","nurse","queue"]);}},
+ {t:"23:05",k:"He answers",x:"He marks each medicine and when she last took it. Apixaban: still taking, not sure about this morning. Warfarin: stopped. Finish it on the phone, or press Next to fill it in.",go(){const p=P("c5");if(p.ph.st!=="done"){p.ph.st="done";p.ph.cg={apix:{a:"yes",ld:"ns"},warf:{a:"no"},amio:{a:"yes",ld:"am"},meto:{a:"yes",ld:"am"},furo:{a:"yes",ld:"am"},alen:{a:"yes"}};applyFamily(p);}S.role="tech";S.cur="c5";layout(["meds","src","phone"]);}},
+ {t:"23:20",k:"Tech finishes and sends",x:"The tech finds the son's answers already in place, checks the sources, and sends the history to the pharmacist. It took minutes, not a full interview.",go(){const p=P("c5");p.hist.src["Outpatient Pharmacy Database"]=true;p.hist.managed=p.hist.managed||"Patient";p.hist.by=p.hist.by||[];if(p.hist.by.indexOf("Technician")<0)p.hist.by.push("Technician");p.sent=true;S.role="tech";layout(["meds","hist","queue"]);}},
+ {t:"23:30",k:"ED pharmacist leaves",x:"The onsite ED pharmacist goes home. Nothing stalls: the queue keeps building and now routes to the central pharmacist, highest risk first.",go(){S.after=true;S.role="rph";layout(["queue","meds","msgs"]);}},
+ {t:"00:15",k:"Central verifies",x:"The central pharmacist opens Gloria first. Apixaban can't be matched without a last dose, so the line says so; the pharmacist marks it unknown on purpose, confirms warfarin is stopped, and signs.",go(){const p=P("c5");p.meds.forEach(m=>{if(m.tn.a==="Stopped / not taking")m.stopped=true;else m.matched=true;});p.att={ck:{0:true,1:true,2:true,3:true},sig:"Central pharmacist (trial)",open:false};p.close="Apixaban last dose unknown per son; confirm timing before any reversal or procedure.";p.fin="00:15";log(p,"Central pharmacist completed the medication reconciliation");S.role="rph";layout(["note","queue"]);}},
+ {t:"02:30",k:"Techs go off",x:"No med history techs until 06:00. Families who answered overnight still land in the queue, ready to verify. Only the patients who need a bedside visit wait.",go(){S.role="rph";layout(["queue","note"]);}},
+ {t:"06:00",k:"Morning",x:"Today the morning shift inherits a stack of unfinished histories. With Ottley, most are verified or waiting on one answer. These counts are illustrative until the baseline study measures a real night.",go(){S.role="md";S.act="medrec";layout(["prelim","queue"]);}}];
+function layout(keys){initWins();Object.keys(S.wins).forEach(k=>{S.wins[k].mode="hidden";});keys.forEach((k,i)=>{S.wins[k].mode="tile";S.wins[k].order=i;S.wins[k].wide=false;});if(S.act!=="medrec")S.act="ott";}
+function demoGo(i){S.demo.i=Math.max(0,Math.min(DEMO.length-1,i));S.act="ott";DEMO[S.demo.i].go();render();}
 
 /* ---------- panel renderers (return HTML) ---------- */
 function pMeds(p){const r=S.role;
@@ -381,7 +455,7 @@ function pNurse(p){const today=p.meds.filter(m=>m.ld&&/morning|midday|evening/i.
   return'<div class="alert t-bad"><b>Taken today:</b> '+(today.length?today.map(m=>esc(m.name)+" ("+esc(m.ld.l.toLowerCase())+")").join(", "):"none documented yet")+"</div>"+(wait.length?'<div class="alert t-warn"><b>'+wait.length+" own medication"+(wait.length>1?"s":"")+"</b> waiting for the pharmacist. Keep at the bedside or nurse station.</div>":"")+(pend.length?'<div class="alert t-warn"><b>'+pend.length+"</b> disposition"+(pend.length>1?"s":"")+" for you to carry out in Own medications.</div>":"");}
 function pHist(p){const h=p.hist,ed=canEnter();
   return'<div class="muted" style="font-size:12.5px;font-weight:700">Medication history obtained from</div><div class="chips">'+SRCS.map(x=>'<button type="button" data-act="hsrc" data-v="'+esc(x)+'" aria-pressed="'+!!h.src[x]+'"'+(ed?"":" disabled")+">"+esc(x)+"</button>").join("")+'</div><div class="muted" style="font-size:12.5px;font-weight:700">At home, medications are managed by</div><div class="chips">'+MANAGED.map(x=>'<button type="button" data-act="hman" data-v="'+esc(x)+'" aria-pressed="'+(h.managed===x)+'"'+(ed?"":" disabled")+">"+esc(x)+"</button>").join("")+'</div><label class="muted" style="font-size:12.5px;font-weight:700;display:grid;gap:4px" for="in-'+p.id+'">Interview notes (200 characters)<textarea class="inp" id="in-'+p.id+'" data-act="inote" maxlength="200"'+(ed?"":" readonly")+'>'+esc(h.inote)+'</textarea></label><div class="tw"><table class="t"><tbody><tr><td class="muted">Retail pharmacy</td><td>'+esc(p.pharm)+'</td></tr><tr><td class="muted">Primary care</td><td>'+esc(p.pcp)+'</td></tr><tr><td class="muted">Recent anti-infective use</td><td>'+esc(p.abx)+"</td></tr></tbody></table></div>";}
-const RENDER={hist:pHist,meds:pMeds,src:pSrc,msgs:pMsgs,pom:pPom,note:pNote,script:pScript,prelim:pPrelim,nurse:pNurse};
+const RENDER={queue:pQueue,phone:pPhone,hist:pHist,meds:pMeds,src:pSrc,msgs:pMsgs,pom:pPom,note:pNote,script:pScript,prelim:pPrelim,nurse:pNurse};
 
 /* ---------- windows: tile, float, pop out ---------- */
 const POPS={};
@@ -411,6 +485,7 @@ function renderFB(p){const key=S.role+"|"+p.id,f=S.fb[key]||{};const mins=p.open
 
 /* ---------- main render ---------- */
 function render(){const p=cur();if(!p.opened)p.opened=Date.now();
+  const db=$("demoBar"),gb=$("gapban");if(S.demo){const d=DEMO[S.demo.i];db.hidden=false;db.innerHTML='<span class="clk">'+d.t+'</span><div class="cap"><b>'+(S.demo.i+1)+" of "+DEMO.length+" · "+esc(d.k)+"</b>"+esc(d.x)+'</div><div class="row"><button class="btn sm" type="button" data-act="demoback"'+(S.demo.i?"":" disabled")+'>Back</button><button class="btn sm pri" type="button" data-act="demonext"'+(S.demo.i<DEMO.length-1?"":" disabled")+'>Next</button><button class="btn sm" type="button" data-act="demoend">End demo</button></div>';gb.hidden=false;gb.innerHTML="<b>Tonight</b><span>No onsite ED pharmacist after 23:30</span><span>Med history tech gap 02:30–06:00</span><span>Central pharmacist covering med history review"+(S.after?" · <b>now on</b>":"")+"</span><span>ED calls go to central</span>";}else{db.hidden=true;gb.hidden=true;}
   $("role").value=S.role;
   $("track").innerHTML=S.pts.map(q=>{const rs=recState(q),c=q.meds.filter(isConflict).length;return'<button class="trow" type="button" data-act="pt" data-v="'+q.id+'" aria-pressed="'+(q.id===S.cur)+'"><span class="rm">'+esc(q.room)+"</span><span><b>"+esc(q.name)+"</b><small>"+q.age+" "+q.sex+" · "+esc(q.why)+'</small></span><span class="tag '+(q.fin?"t-good":c?"t-bad":q.sent?"t-info":"t-warn")+'">'+(q.fin?"Med rec ✓":c?c+" conflict"+(c>1?"s":""):q.sent?"With RPh":"Tech")+"</span></button>";}).join("");
   const rs=recState(p);
@@ -440,6 +515,21 @@ function handle(e){
   const t=e.target.closest("[data-act]");if(!t||t.disabled)return;const d=t.dataset,a=d.act;
   if(a==="tnx"||a==="attsig"||a==="tt"||a==="inote"||a==="clar")return;
   const p=P(bindOf(t)),m=d.m?p.meds.find(x=>x.id===d.m):null;
+  if(a==="demo"){S.pts=CASES.map(freshCase);S.after=false;S.demo={i:0};demoGo(0);return;}
+  if(a==="demonext"){demoGo(S.demo.i+1);return;}
+  if(a==="demoback"){demoGo(S.demo.i-1);return;}
+  if(a==="demoend"){S.demo=null;S.after=false;initWins();render();return;}
+  if(a==="ph"){const ph=p.ph,v=d.v,val=id=>((doc.getElementById(id)||{}).value||"").trim();ph.err="";
+    if(v==="open")ph.st="code";
+    else if(v==="wrong"){ph.st="wrong";log(p,"Link closed: recipient said it reached the wrong person");}
+    else if(v==="code"){if(val("phc-"+p.id).replace(/\D/g,"")===p.code.replace(/\D/g,""))ph.st="dob";else ph.err="That code doesn't match. Ask the nurse for the code again.";}
+    else if(v==="dob"){if(val("phd-"+p.id)===p.dob)ph.st="wt";else ph.err="That date doesn't match our records. Check it and try again.";}
+    else if(v==="wt"){const w=parseFloat(val("phw-"+p.id));if(!(w>40&&w<700)){ph.err="Enter a weight in pounds, or tap Skip.";}else{ph.wt=w;p.wt=(Math.round(w/2.2046*10)/10)+" kg stated by "+p.cgw.toLowerCase()+" on the link";ph.st="list";}}
+    else if(v==="wtskip")ph.st="list";
+    else if(v==="send"){ph.st="done";applyFamily(p);}
+    render();return;}
+  if(a==="cg"){const c=p.ph.cg[d.m]=p.ph.cg[d.m]||{};c.a=c.a===d.v?"":d.v;if(c.a!=="yes")delete c.ld;render();return;}
+  if(a==="cgld"){const c=p.ph.cg[d.m];c.ld=c.ld===d.v?"":d.v;render();return;}
   if(a==="pt"){S.cur=d.v;S.sendWarn=false;render();return;}
   if(a==="act"){S.act=d.v;render();return;}
   if(a==="reset"){S.pts=CASES.map(freshCase);render();toast("Cases reset");return;}
