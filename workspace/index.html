@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Ottley Workspace</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -182,6 +183,35 @@ textarea.inp{width:100%;min-height:56px;resize:vertical}
 .screen .ch{display:flex;flex-wrap:wrap;gap:4px}
 .screen .ch button{border:1.5px solid #c9d2dc;background:#fff;color:#1d2328;border-radius:999px;padding:3px 9px;font-size:12.5px;font-weight:700}
 .screen .ch button[aria-pressed="true"]{background:#0a8a8f;border-color:#0a8a8f;color:#fff}
+.screen p{margin:0;line-height:1.4}
+.screen .mut{color:#5b6672;font-size:12.5px}
+.screen .u{color:#0a6a6e;text-decoration:underline}
+.screen .bh{display:flex;align-items:center;gap:7px;font-weight:800;font-size:12.5px;color:#1d3a5a;border-bottom:1px solid #e2e7ed;padding-bottom:8px;margin:-2px -2px 0}
+.screen .bdot{width:16px;height:16px;border-radius:5px;background:linear-gradient(135deg,#1d3a5a,#0a8a8f)}
+.screen .bsub{font:700 10.5px ui-monospace,monospace;letter-spacing:.8px;text-transform:uppercase;color:#5b6672;margin-top:-4px}
+.screen .rec{background:#f1f4f7;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.4}
+.screen .q{font-weight:800;font-size:14px;margin-top:2px}
+.screen .g1{display:grid;gap:6px}.screen .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.screen .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.screen .opt{text-align:left;border:1.5px solid #c9d2dc;background:#fff;border-radius:12px;padding:9px 11px;font-weight:700;font-size:14px;color:#1d2328;line-height:1.25}
+.screen .g3 .opt{text-align:center;padding:8px 4px;font-size:13px}
+.screen .opt.sm{font-size:12.5px;padding:8px 9px}
+.screen .opt[aria-pressed="true"]{border-color:#0a8a8f;background:#e3f4f3;color:#06585b;box-shadow:inset 0 0 0 1px #0a8a8f}
+.screen .opt.cam{border-style:dashed;text-align:center;color:#3b4652}
+.screen .go.alt{background:#fff;color:#0a6a6e;border:1.5px solid #0a8a8f}
+.screen .go.sm{padding:8px 12px;font-size:14px}
+.screen .prog{height:6px;background:#e4e9ef;border-radius:99px;overflow:hidden}.screen .prog i{display:block;height:100%;background:#0a8a8f;transition:width .25s}
+.screen .row3{display:flex;justify-content:space-between;gap:8px}
+.screen .otpw{position:relative}
+.screen .otpin{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:text}
+.screen .otpb{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;pointer-events:none}
+.screen .otpb span{height:46px;border:1.5px solid #c9d2dc;border-radius:10px;background:#fff;display:grid;place-items:center;font:800 22px ui-monospace,monospace}
+.screen .otpw:focus-within .otpb span.cur{border-color:#0a8a8f;box-shadow:0 0 0 2px #bfe6e4}
+.screen .addr{display:flex;gap:6px}.screen .addr input{flex:1;min-width:0}
+.screen .addl{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
+.screen .pm.hr{border-color:#e4b2b5;background:#fffafa}
+.screen .ok{width:52px;height:52px;border-radius:50%;background:#e3f4f3;color:#0a8a8f;display:grid;place-items:center;font-size:28px;font-weight:900;margin:8px auto 0}
+.screen .err{color:#b3261e;font-weight:700;font-size:13px}
+
 .screen .err{color:#b3261e;font-weight:700;font-size:13px}
 .qrow{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
 .qrow .rk{font:700 15px var(--f-mono);text-align:center;border-radius:7px;padding:3px 0;background:var(--gray-soft)}
@@ -388,31 +418,82 @@ function liveState(p){if(p.fin)return["Verified","t-good"];if(p.sent)return["Wit
 function pQueue(){const step=S.demo?S.demo.i:0;const rows=S.pts.map(p=>({room:p.room,age:p.age,sex:p.sex,why:p.why,risk:RISK[p.id],st:liveState(p),id:p.id})).concat(FILL.map((f,i)=>({room:f[0],age:f[1],sex:f[2],why:f[3],risk:f[4],st:fillState(i,step)}))).sort((a,b)=>b.risk-a.risk);
   const c={};rows.forEach(r=>{c[r.st[1]]=(c[r.st[1]]||0)+1;});
   return'<div class="qcount"><div><b>'+rows.length+'</b><span>Need a history</span></div><div><b>'+((c["t-info"]||0)+(c["t-warn"]||0))+'</b><span>Building</span></div><div><b>'+(c["t-ott"]||0)+'</b><span>Family answered</span></div><div><b>'+(c["t-good"]||0)+'</b><span>Verified</span></div></div><div class="muted" style="font-size:12.5px">Ranked by risk, not by who is quickest. Live trial cases open in the chart; the others are background patients.</div>'+rows.map(r=>'<div class="qrow"><span class="rk'+(r.risk>=8?" hi":"")+'">'+r.risk+'</span><span><b>'+esc(r.room)+" · "+r.age+" "+r.sex+"</b> · "+esc(r.why)+(r.id?' <button class="btn sm" type="button" data-act="pt" data-v="'+r.id+'">Open</button>':"")+'</span><span class="tag '+r.st[1]+'">'+esc(r.st[0])+"</span></div>").join("");}
-function pPhone(p){const ph=p.ph,who=p.cgw,self=who==="Patient",her=self?"your":p.sex==="F"?"her":"his";
+const BRAND={name:"Harbor Hospital",url:"harbor.example/r/7Q2",unit:"the emergency department"};
+const PROXY=["Parent / legal guardian","Family member / caregiver","Assisted-living or nursing-facility staff","Legally authorized representative"];
+const EXTRAS=["Over-the-counter medicines","Vitamins or supplements","Inhalers","Creams or ointments","Eye or ear drops","Patches","Injections or pens","As-needed medicines"];
+const CATALOG=["Acetaminophen","Albuterol inhaler","Allopurinol","Amlodipine","Aspirin 81 mg","Atorvastatin","Calcium with vitamin D","Carvedilol","Cetirizine","Clopidogrel","Docusate","Donepezil","Duloxetine","Eliquis (apixaban)","Fish oil","Fluticasone nasal spray","Gabapentin","Glipizide","Hydrochlorothiazide","Ibuprofen","Insulin glargine","Levothyroxine","Lisinopril","Loratadine","Losartan","Magnesium oxide","Meloxicam","Metformin","Multivitamin","Naproxen","Omeprazole","Pantoprazole","Polyethylene glycol (MiraLAX)","Potassium chloride","Prednisone","Sertraline","Simvastatin","Tamsulosin","Trazodone","Vitamin B12","Vitamin D3"];
+function phFirst(p){return p.name.split(" ")[0];}
+function phMask(p){return"(•••) •••-"+p.code.replace(/\D/g,"").slice(2);}
+function phMeds(p){return p.meds.filter(m=>!m.added);}
+function phLong(p){return phMeds(p).length>=9;}
+function phDone(m,c,lite){if(!c||!c.a)return false;if(c.a!=="yes")return true;if(prn(m)||lite&&!m.hr)return true;if(!c.day)return false;return c.day==="earlier"||c.day==="ns"||!!c.tod;}
+function phOpt(act,m,k,v,label,cur){return'<button type="button" class="opt" data-act="'+act+'" data-m="'+m+'" data-k="'+k+'" data-v="'+v+'" aria-pressed="'+(cur===v)+'">'+label+"</button>";}
+function phChip(m,k,v,label,cur){return'<button type="button" data-act="cgk" data-m="'+m+'" data-k="'+k+'" data-v="'+v+'" aria-pressed="'+(cur===v)+'">'+label+"</button>";}
+function phHead(t){return'<div class="bh"><span class="bdot" aria-hidden="true"></span><span>'+esc(BRAND.name)+'</span></div>'+(t?'<div class="bsub">'+esc(t)+"</div>":"");}
+function phLast(m,c,small){const ask=small?(k,v,l,cur)=>phChip(m.id,k,v,l,cur):(k,v,l,cur)=>phOpt("cgk",m.id,k,v,l,cur);
+  let h='<div class="q">When was it last taken?</div><div class="'+(small?"ch":"g2")+'">'+[["today","Today"],["yday","Yesterday"],["earlier","Earlier than yesterday"],["ns","Not sure"]].map(([v,l])=>ask("day",v,l,c.day)).join("")+"</div>";
+  if(c.day==="today"||c.day==="yday")h+='<div class="q">About what time'+(c.day==="yday"?" yesterday":"")+'?</div><div class="'+(small?"ch":"g2")+'">'+[["am","Morning"],["noon","Midday"],["eve","Evening"],["bed","Bedtime"]].map(([v,l])=>ask("tod",v,l,c.tod)).join("")+"</div>";
+  return h;}
+function pPhone(p){const ph=p.ph,who=p.cgw,self=who==="Patient",first=phFirst(p),her=self?"your":p.sex==="F"?"her":"his",she=self?"you":p.sex==="F"?"she":"he",subj=self?"you":first;
   let b='<div class="phone"><div class="screen">';
-  if(ph.st==="sms")b+='<div class="muted" style="font-size:12px">Messages · now</div><div class="sms">Harbor Hospital: our pharmacy team asks for help reviewing '+(self?"your":"a family member's")+' medicines. Tap to start: harbor.example/r/7Q2. Your nurse will give you a 6-digit code. Reply STOP to opt out.</div><button class="go" type="button" data-act="ph" data-v="open">Open the link</button>';
-  else if(ph.st==="code")b+='<h4>Enter the code from the nurse</h4><p style="margin:0">For your privacy, the code never comes by text.</p><label class="vh" for="phc-'+p.id+'">Code</label><input id="phc-'+p.id+'" inputmode="numeric" placeholder="6 digits">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="code">Continue</button><button class="lnk" type="button" data-act="ph" data-v="wrong">This isn\'t someone I know</button>';
-  else if(ph.st==="dob")b+='<h4>Confirm the date of birth</h4><p style="margin:0">Of the person in the emergency department.</p><label class="vh" for="phd-'+p.id+'">Date of birth</label><input id="phd-'+p.id+'" placeholder="MM/DD/YYYY">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="dob">Continue</button>';
-  else if(ph.st==="wt")b+='<h4>About how much does '+(self?"you weigh":(p.sex==="F"?"she":"he")+" weigh")+'?</h4><p style="margin:0">A recent number helps with dosing. Skip if you don\'t know.</p><label class="vh" for="phw-'+p.id+'">Weight in pounds</label><input id="phw-'+p.id+'" inputmode="decimal" placeholder="Pounds">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="wt">Continue</button><button class="lnk" type="button" data-act="ph" data-v="wtskip">Skip</button>';
-  else if(ph.st==="list"){const ms=p.meds.filter(m=>!/norethindrone|estradiol/i.test(m.name));const n=ms.filter(m=>ph.cg[m.id]&&ph.cg[m.id].a).length;
-    b+='<h4>Is '+(self?"this":"this")+' still right?</h4><p style="margin:0;font-size:13px">We found these in '+her+' records. Tap one answer each. "Not sure" is fine.</p>'+ms.map(m=>{const c=ph.cg[m.id]||{};return'<div class="pm"><b>'+esc(m.name)+'</b><small>'+esc(value(m)||"dose not listed")+'</small><div class="ch">'+[["yes","Still taking"],["no","Stopped"],["diff","Different dose"],["unsure","Not sure"]].map(([k,l])=>'<button type="button" data-act="cg" data-m="'+m.id+'" data-v="'+k+'" aria-pressed="'+(c.a===k)+'">'+l+"</button>").join("")+"</div>"+(c.a==="yes"&&!prn(m)?'<small>Last dose?</small><div class="ch">'+[["am","This morning"],["noon","Midday"],["eve","Last evening"],["bed","Bedtime"],["ns","Not sure"]].map(([k,l])=>'<button type="button" data-act="cgld" data-m="'+m.id+'" data-v="'+k+'" aria-pressed="'+(c.ld===k)+'">'+l+"</button>").join("")+"</div>":"")+"</div>";}).join("")+'<button class="go" type="button" data-act="ph" data-v="send"'+(n<ms.length?" disabled":"")+">Send to the pharmacy ("+n+" of "+ms.length+")</button>";}
-  else if(ph.st==="wrong")b+='<h4>Thanks for telling us</h4><p style="margin:0">This link is closed. Nothing about the patient was shown.</p>';
-  else b+='<h4>Thank you</h4><p style="margin:0">The pharmacy team has '+her+' list. A pharmacist reviews every answer before anything is ordered. You can close this page.</p>';
+  if(ph.st==="sms")b+='<div class="mut" style="text-align:center">Text Message · now</div><div class="sms"><b>'+esc(BRAND.name)+':</b> A member of your care team has asked for help confirming medication information for a patient receiving care. Open the secure link to help.<br><span class="u">'+esc(BRAND.url)+'</span><br><span class="mut">Reply STOP to opt out.</span></div><div class="mut">No patient name, medicine or visit detail is included.</div><button class="go" type="button" data-act="ph" data-v="open">Open the secure link</button>';
+  else if(ph.st==="open")b+=phHead("Secure medication check")+'<h4>Help requested by the care team</h4><p>A member of the care team asked for help confirming medication information. First we\'ll make sure this reached the right person.</p><div class="rec">We\'ll text a 6-digit code to<br><b>'+phMask(p)+"</b></div>"+'<button class="go" type="button" data-act="ph" data-v="sendcode">Send verification code</button><button class="lnk" type="button" data-act="ph" data-v="wrong">I don\'t know who this is about</button>';
+  else if(ph.st==="code"){const v=ph.otp||"";b+=phHead()+'<h4>Enter your verification code</h4><p>We sent a 6-digit code to '+phMask(p)+'. The nurse can also read it to you.</p><div class="otpw"><label class="vh" for="phc-'+p.id+'">Verification code</label><input class="otpin" id="phc-'+p.id+'" data-act="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="'+esc(v)+'"><div class="otpb" aria-hidden="true">'+[0,1,2,3,4,5].map(i=>'<span class="'+(i===Math.min(v.length,5)?"cur":"")+'">'+(v[i]||"")+"</span>").join("")+"</div></div>"+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<div class="mut" data-until="'+(ph.sentAt+30000)+'" data-pid="'+p.id+'">Didn\'t get it? You can resend in 30 s</div>';}
+  else if(ph.st==="dob")b+=phHead()+'<h4>Confirm the patient\'s date of birth</h4><p>One more check before anything is shown.</p><label class="vh" for="phd-'+p.id+'">Date of birth</label><input id="phd-'+p.id+'" placeholder="MM/DD/YYYY" inputmode="numeric">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="dob">Continue</button>';
+  else if(ph.st==="role")b+=phHead()+'<h4>How are you able to help?</h4><p>This helps the care team know who they\'re hearing from.</p><div class="g1">'+(self?["I am the patient"]:[]).concat(PROXY).map(r=>'<button type="button" class="opt" data-act="phrole" data-v="'+esc(r)+'" aria-pressed="'+(ph.role===r)+'">'+esc(r)+"</button>").join("")+'</div><button class="go" type="button" data-act="ph" data-v="role"'+(ph.role?"":" disabled")+'>Continue</button><button class="lnk" type="button" data-act="ph" data-v="callrole">I\'m not sure—please have the team call me</button>';
+  else if(ph.st==="intro"){const n=phMeds(p).length,hr=phMeds(p).filter(m=>m.hr).length;
+    b+=phHead()+'<h4>'+(self?"You're confirming your own medication information":"You're helping with "+esc(first)+"'s medication information")+'</h4><p>'+(self?"You are":esc(first)+" is")+" receiving care in "+esc(BRAND.unit)+" at "+esc(BRAND.name)+". "+(self?"Your":(p.sex==="F"?"Her":"His"))+' records list <b>'+n+" medicines</b>. Answer what you know. \"I'm not sure\" is always fine.</p>";
+    if(phLong(p))b+='<div class="rec">That\'s a long list, so you\'ll only tap what\'s different. '+(hr?hr+" important medicine"+(hr>1?"s are":" is")+" asked one by one.":"")+'</div><button class="go" type="button" data-act="ph" data-v="list">Start with what\'s different</button>';
+    else b+='<button class="go" type="button" data-act="ph" data-v="start">Start, one medicine at a time</button>'+'<button class="go alt" type="button" data-act="ph" data-v="same">Nothing has changed since '+(self?"my":her)+" last visit</button>"+(hr?'<div class="mut">If nothing changed, we\'ll still ask about '+hr+" important medicine"+(hr>1?"s":"")+".</div>":"");}
+  else if(ph.st==="review"){const q=ph.q,i=ph.i,m=p.meds.find(x=>x.id===q[i]),c=ph.cg[m.id]||{};
+    b+=phHead()+'<div class="mut">'+(ph.mode==="same"?"Just the important ones · ":"")+"Medicine "+(i+1)+" of "+q.length+'</div><div class="prog"><i style="width:'+Math.round((i+1)/q.length*100)+'%"></i></div>';
+    b+='<div class="rec"><b style="font-size:16px">'+esc(m.name)+'</b><br>The record shows: '+esc(value(m)||"dose not listed")+"</div>";
+    b+='<div class="q">Is '+(self?"this something you're":esc(first)+"")+(self?" taking now?":" taking this medicine now?")+'</div><div class="g1">'+[["yes","Yes, still taking it"],["no","No, stopped"],["diff","Taking it differently"],["unsure","I'm not sure"]].map(([v,l])=>phOpt("cgk",m.id,"a",v,l,c.a)).join("")+"</div>";
+    if(c.a==="yes"){b+='<div class="q">Does that match the label?</div><div class="g3">'+[["yes","Yes"],["no","No"],["cant","Can't check"]].map(([v,l])=>phOpt("cgk",m.id,"lab",v,l,c.lab)).join("")+"</div>";
+      b+='<div class="q">How often is it taken?</div><div class="g3">'+[["daily","Every day"],["prn","Only when needed"],["ns","Not sure"]].map(([v,l])=>phOpt("cgk",m.id,"freq",v,l,c.freq)).join("")+"</div>";
+      b+=phLast(m,c,false);}
+    if(c.a==="diff"||c.lab==="no")b+='<label class="q" for="phh-'+p.id+'">How is it taken? <span class="mut">(optional)</span></label><input id="phh-'+p.id+'" data-act="cghow" data-m="'+m.id+'" maxlength="80" placeholder="For example: one tablet at night only" value="'+esc(c.how||"")+'">';
+    if(c.a&&c.a!=="no")b+='<button type="button" class="opt cam" data-act="cgphoto" data-m="'+m.id+'" aria-pressed="'+!!c.photo+'">'+(c.photo?"✓ Label photo added":"📷 Take a photo of the bottle label")+"</button>";
+    b+='<button class="go" type="button" data-act="ph" data-v="next"'+(phDone(m,c)?"":" disabled")+">"+(i+1<q.length?"Next medicine":"Continue")+'</button><div class="row3">'+(i?'<button class="lnk" type="button" data-act="ph" data-v="back">Back</button>':"<span></span>")+'<button class="lnk" type="button" data-act="ph" data-v="callmed">I\'m not sure—please call me</button></div><button class="lnk" type="button" data-act="ph" data-v="finish">Finish with what I know</button>';}
+  else if(ph.st==="list"){const ms=phMeds(p),n=ms.filter(m=>phDone(m,ph.cg[m.id],true)).length;
+    b+=phHead()+'<h4>Tap only what\'s different</h4><p style="font-size:13px">Important medicines (marked ●) need an answer and a last dose. You can mark the rest as still taking.</p><div class="prog"><i style="width:'+Math.round(n/ms.length*100)+'%"></i></div>'+ms.map(m=>{const c=ph.cg[m.id]||{};return'<div class="pm'+(m.hr?" hr":"")+'"><b>'+(m.hr?"● ":"")+esc(m.name)+'</b><small>'+esc(value(m)||"dose not listed")+'</small><div class="ch">'+[["yes","Still taking"],["no","Stopped"],["diff","Different"],["unsure","Not sure"]].map(([k,l])=>phChip(m.id,"a",k,l,c.a)).join("")+"</div>"+(c.a==="yes"&&m.hr&&!prn(m)?phLast(m,c,true):"")+"</div>";}).join("")+'<button class="go alt" type="button" data-act="ph" data-v="rest">Mark the rest as still taking</button><button class="go" type="button" data-act="ph" data-v="listdone"'+(n<ms.length?" disabled":"")+">Continue ("+n+" of "+ms.length+")</button>";}
+  else if(ph.st==="wt")b+=phHead()+'<h4>About how much does '+(self?"you weigh":esc(first)+" weigh")+'?</h4><p>A recent number helps the team plan. They\'ll weigh '+(self?"you":p.sex==="F"?"her":"him")+' here before any dose depends on it.</p><label class="vh" for="phw-'+p.id+'">Weight in pounds</label><input id="phw-'+p.id+'" inputmode="decimal" placeholder="Pounds">'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"")+'<button class="go" type="button" data-act="ph" data-v="wt">Continue</button><button class="lnk" type="button" data-act="ph" data-v="wtskip">I don\'t know</button>';
+  else if(ph.st==="extras"){const ex=ph.ex||{},ad=ph.add||[];
+    b+=phHead()+'<h4>Does '+(self?"you use":esc(first)+" use")+' any of these?</h4><p style="font-size:13px">These are often missing from records. Tap any that apply.</p><div class="g2">'+EXTRAS.map(x=>'<button type="button" class="opt sm" data-act="phex" data-v="'+esc(x)+'" aria-pressed="'+!!ex[x]+'">'+esc(x)+"</button>").join("")+"</div>";
+    b+='<div class="q">Add a medicine that\'s missing</div><div class="addr"><label class="vh" for="pha-'+p.id+'">Medicine name</label><input id="pha-'+p.id+'" list="cat-'+p.id+'" placeholder="Start typing a name"><datalist id="cat-'+p.id+'">'+CATALOG.map(x=>'<option value="'+esc(x)+'">').join("")+'</datalist><button class="go sm" type="button" data-act="phadd">Add</button></div>'+(ph.err?'<div class="err">'+esc(ph.err)+"</div>":"");
+    if(ad.length)b+='<div class="rec"><span class="mut">You added</span>'+ad.map((x,i)=>'<div class="addl"><b>'+esc(x)+'</b><button class="lnk" type="button" data-act="phrm" data-v="'+i+'">Remove</button></div>').join("")+'<div class="mut">Is this correct? The pharmacist will confirm the dose.</div></div>';
+    b+='<button class="go" type="button" data-act="ph" data-v="send">Send answers to the care team</button>';}
+  else if(ph.st==="wrong")b+=phHead()+'<h4>Thanks for telling us</h4><p>This link is now closed. Nothing about the patient was shown.</p>';
+  else if(ph.st==="call")b+=phHead()+'<div class="ok" aria-hidden="true">✓</div><h4>We\'ll have the team call you</h4><p>Someone from the care team will call '+phMask(p)+'. Nothing about the patient was shown.</p>';
+  else b+=phHead()+'<div class="ok" aria-hidden="true">✓</div><h4>Thank you for helping</h4><p>Your answers were sent to the care team. A pharmacist will review them.'+(ph.callReq?" Someone from the team will call you.":"")+'</p><p class="mut">This does not replace a conversation with the clinical team.</p>';
   b+="</div></div>";
-  const sideNote=S.role==="rn"||S.role==="tech"?'<div class="alert t-info" style="margin-top:8px"><b>Code to give in person:</b> <span class="mono">'+esc(p.code)+"</span> · DOB check: "+esc(p.dob)+"</div>":'<div class="muted" style="font-size:12px;margin-top:6px">Trial: the code and DOB show to the nurse or tech signed in.</div>';
-  return'<div class="muted" style="font-size:12.5px">'+esc(who)+(self?"'s own phone":"'s phone")+" · what they see</div>"+b+sideNote;}
-function applyFamily(p){const who=p.cgw.toLowerCase();Object.keys(p.ph.cg).forEach(id=>{const m=p.meds.find(x=>x.id===id),c=p.ph.cg[id];if(!m)return;
-    if(c.a==="yes"){const h={am:8,noon:12,eve:-6,bed:-3}[c.ld];const tod={am:"Morning",noon:"Noon",eve:"Evening",bed:"Bedtime"}[c.ld];m.tn.a=c.ld==="eve"||c.ld==="bed"?"Taking as directed, yesterday":"Taking as directed, today";if(c.ld==="ns")m.tn.a="Doesn't know";m.ld=c.ld==="ns"?{k:"unk",h:null,l:"Unknown · "+who+" not sure"}:c.ld?{k:tod,h:h,l:(h<0?"Yesterday ":"Today ")+tod.toLowerCase()+" · per "+who}:null;m.src.fam=(m.src.fam||value(m))+" · "+who+" via link";}
+  const sideNote=S.role==="rn"||S.role==="tech"?'<div class="alert t-info" style="margin-top:8px"><b>Trial code:</b> <span class="mono">'+esc(p.code)+"</span> · DOB check: "+esc(p.dob)+'<br><span class="muted" style="font-size:12px">In real use the code is texted to the verified number; the nurse can also read it out.</span></div>':'<div class="muted" style="font-size:12px;margin-top:6px">Trial: the code and DOB show to the nurse or tech signed in.</div>';
+  return'<div class="muted" style="font-size:12.5px">'+esc(who)+(self?"'s own phone":"'s phone")+" · what they see · "+phMeds(p).length+" meds → "+(phLong(p)?"tap-what's-different":"one at a time")+"</div>"+b+sideNote;}
+function applyFamily(p){const ph=p.ph,who=p.cgw.toLowerCase(),H={am:8,noon:12,eve:18,bed:21},T={am:"morning",noon:"midday",eve:"evening",bed:"bedtime"};const calls=[];
+  Object.keys(ph.cg).forEach(id=>{const m=p.meds.find(x=>x.id===id),c=ph.cg[id];if(!m||!c.a)return;const ex=[];
+    if(c.a==="yes"&&c.lab==="no"){c.a="diff";ex.push("label doesn't match record");}
+    if(c.a==="yes"){
+      if(c.day==="today"||c.day==="yday"){const yd=c.day==="yday";m.tn.a=yd?"Taking as directed, yesterday":"Taking as directed, today";if(c.tod){m.ld={k:c.tod,h:(yd?-24:0)+H[c.tod],l:(yd?"Yesterday ":"Today ")+T[c.tod]+" · per "+who};}}
+      else if(c.day==="earlier"){m.tn.a=prn(m)||c.freq==="prn"?"Taking as directed, yesterday":"Not taking, but should be";m.ld={k:"unk",h:null,l:"Earlier than yesterday · per "+who};ex.push("last taken earlier than yesterday");}
+      else if(c.day==="ns"){m.tn.a="Doesn't know";m.ld={k:"unk",h:null,l:"Unknown · "+who+" not sure"};}
+      else{m.tn.a="Taking as directed, today";if(!prn(m))ex.push("last dose not asked");}
+      if(c.freq==="prn"&&!prn(m))ex.push("only when needed");
+      m.src.fam=(value(m)||"listed dose")+" · "+who+" via link"+(c.photo?" · label photo":"");}
     else if(c.a==="no"){m.tn.a="Stopped / not taking";m.src.fam="Stopped · "+who+" via link";}
-    else if(c.a==="diff"){m.tn.a="Taking differently than Rx";m.src.fam="Different dose · "+who+" via link";}
+    else if(c.a==="diff"){m.tn.a="Taking differently than Rx";m.src.fam=(c.how?c.how:"Different from record")+" · "+who+" via link"+(c.photo?" · label photo":"");}
     else if(c.a==="unsure"){m.tn.a="Doesn't know";m.ld={k:"unk",h:null,l:"Unknown · "+who+" not sure"};}
-    m.tn.x=m.tn.x||("Per "+who+" via link");});
-  p.hist.src[p.cgw==="Patient"?"The Patient (in-person)":"Family/Caregiver"]=true;p.hist.by=p.hist.by||[];log(p,p.cgw+" confirmed the list on the link");}
+    if(c.call)calls.push(m.name);
+    m.tn.x=m.tn.x||(("Per "+who+" via link"+(ex.length?"; "+ex.join("; "):"")).slice(0,80));});
+  (ph.add||[]).forEach((nm,i)=>{if(p.meds.some(m=>m.name===nm))return;p.meds.push({id:"add"+i,name:nm,val:"",src:{fam:"Added by "+who+" · not in records"},hr:HR.test(nm),tn:{a:"",f:{},x:"Added by "+who+" on the link; dose to confirm"},ld:null,pick:null,matched:false,stopped:false,dec:null,added:true});});
+  const exs=Object.keys(ph.ex||{}).filter(k=>ph.ex[k]);const said=[];
+  if(exs.length)said.push("says "+(p.cgw==="Patient"?"they also use":phFirst(p)+" also uses")+": "+exs.join(", ").toLowerCase());if((ph.add||[]).length)said.push("added: "+ph.add.join(", "));if(calls.length)said.push("asked for a call about "+calls.join(", "));if(ph.callReq&&!calls.length)said.push("asked for a call");
+  if(said.length)p.msgs.push({from:p.cgw+" (link)",t:now(),x:(p.cgw==="Patient"?"Patient":p.cgw+" (for "+phFirst(p)+")")+" "+said.join("; ")+"."});
+  p.hist.src[p.cgw==="Patient"?"The Patient (in-person)":"Family/Caregiver"]=true;p.hist.by=p.hist.by||[];log(p,p.cgw+(ph.role?" ("+ph.role.toLowerCase()+")":"")+" verified with code and DOB and answered on the link");}
 const DEMO=[
  {t:"22:40",k:"The setup",x:"Tonight's staffing note: no onsite ED pharmacist after 23:30, and a gap in med history techs from 02:30 to 06:00. Central covers med history review and verifies admission orders from DrFirst. 14 patients need a history.",go(){S.role="tech";S.cur="c5";layout(["queue","phone","meds"]);}},
  {t:"22:45",k:"At registration",x:"Every arrival gets a link to the patient or family, and outside records pull in. Nobody waits for the tech to be free; drafts start building for all 14 at once.",go(){S.role="tech";layout(["queue","phone","meds"]);}},
- {t:"22:52",k:"The family's phone",x:"Gloria's son gets a text with no names in it. The nurse gives him the 6-digit code in person. Try it: open the link on the phone, enter 482 915, then her date of birth, 03/14/1950.",go(){S.role="rn";S.cur="c5";layout(["phone","nurse","queue"]);}},
- {t:"23:05",k:"He answers",x:"He marks each medicine and when she last took it. Apixaban: still taking, not sure about this morning. Warfarin: stopped. Finish it on the phone, or press Next to fill it in.",go(){const p=P("c5");if(p.ph.st!=="done"){p.ph.st="done";p.ph.cg={apix:{a:"yes",ld:"ns"},warf:{a:"no"},amio:{a:"yes",ld:"am"},meto:{a:"yes",ld:"am"},furo:{a:"yes",ld:"am"},alen:{a:"yes"}};applyFamily(p);}S.role="tech";S.cur="c5";layout(["meds","src","phone"]);}},
+ {t:"22:52",k:"The family's phone",x:"Gloria's son gets a text with no names in it. He taps Send verification code and enters it (trial code 482 915), then her date of birth, 03/14/1950, and says how he's able to help.",go(){S.role="rn";S.cur="c5";layout(["phone","nurse","queue"]);}},
+ {t:"23:05",k:"He answers",x:"One medicine at a time: is she taking it, does it match the label, when was it last taken. Apixaban: still taking, not sure about this morning. Warfarin: stopped. He adds a calcium supplement that's missing. Finish it on the phone, or press Next to fill it in.",go(){const p=P("c5");if(p.ph.st!=="done"){p.ph.st="done";p.ph.role="Family member / caregiver";p.ph.cg={apix:{a:"yes",lab:"yes",freq:"daily",day:"ns",photo:true},warf:{a:"no"},amio:{a:"yes",lab:"yes",freq:"daily",day:"today",tod:"am"},meto:{a:"yes",lab:"yes",freq:"daily",day:"today",tod:"am"},furo:{a:"yes",lab:"cant",freq:"daily",day:"today",tod:"am"},alen:{a:"yes"}};p.ph.ex={"Vitamins or supplements":true};p.ph.add=["Calcium with vitamin D"];applyFamily(p);}S.role="tech";S.cur="c5";layout(["meds","src","phone"]);}},
  {t:"23:20",k:"Tech finishes and sends",x:"The tech finds the son's answers already in place, checks the sources, and sends the history to the pharmacist. It took minutes, not a full interview.",go(){const p=P("c5");p.hist.src["Outpatient Pharmacy Database"]=true;p.hist.managed=p.hist.managed||"Patient";p.hist.by=p.hist.by||[];if(p.hist.by.indexOf("Technician")<0)p.hist.by.push("Technician");p.sent=true;S.role="tech";layout(["meds","hist","queue"]);}},
  {t:"23:30",k:"ED pharmacist leaves",x:"The onsite ED pharmacist goes home. Nothing stalls: the queue keeps building and now routes to the central pharmacist, highest risk first.",go(){S.after=true;S.role="rph";layout(["queue","meds","msgs"]);}},
  {t:"00:15",k:"Central verifies",x:"The central pharmacist opens Gloria first. Apixaban can't be matched without a last dose, so the line says so; the pharmacist marks it unknown on purpose, confirms warfarin is stopped, and signs.",go(){const p=P("c5");p.meds.forEach(m=>{if(m.tn.a==="Stopped / not taking")m.stopped=true;else m.matched=true;});p.att={ck:{0:true,1:true,2:true,3:true},sig:"Central pharmacist (trial)",open:false};p.close="Apixaban last dose unknown per son; confirm timing before any reversal or procedure.";p.fin="00:15";log(p,"Central pharmacist completed the medication reconciliation");S.role="rph";layout(["note","queue"]);}},
@@ -525,6 +606,9 @@ function saveFB(){try{localStorage.setItem("ottws-fb",JSON.stringify(S.fb));}cat
 function fbText(key){const [role,pid]=key.split("|"),f=S.fb[key]||{},p=P(pid);return["Ottley trial feedback · "+({tech:"ED technician",rph:"ED pharmacist",md:"ED provider",rn:"ED nurse"}[role])+" · case: "+(p?p.name:pid),"Overall: "+(f.speed||"not answered")].concat(FBQ.map((q,i)=>(i+1)+". "+q+"\n   "+(f["q"+i]||"—"))).join("\n");}
 function handle(e){
   const doc=e.target.ownerDocument;
+  if(e.type==="input"&&e.target.dataset.act==="otp"){const p=P(bindOf(e.target)),ph=p.ph,v=e.target.value.replace(/\D/g,"").slice(0,6);ph.otp=v;e.target.value=v;const bx=e.target.parentNode.querySelectorAll(".otpb span");bx.forEach((s,i)=>{s.textContent=v[i]||"";s.className=i===Math.min(v.length,5)?"cur":"";});
+    if(v.length===6){if(v===p.code.replace(/\D/g,"")){ph.err="";ph.st="dob";log(p,"Code verified on the link");}else{ph.err="That code doesn't match. Check the text or ask the nurse to read it.";ph.otp="";}render();const n=doc.getElementById((ph.st==="dob"?"phd-":"phc-")+p.id);if(n)n.focus();}return;}
+  if(e.type==="input"&&e.target.dataset.act==="cghow"){const p=P(bindOf(e.target));const c=p.ph.cg[e.target.dataset.m]=p.ph.cg[e.target.dataset.m]||{};c.how=e.target.value.slice(0,80);return;}
   if(e.type==="input"&&e.target.dataset.act==="inote"){const p=P(bindOf(e.target));p.hist.inote=e.target.value.slice(0,200);mark(p);return;}
   if(e.type==="input"&&e.target.dataset.act==="clar"){const p=P(bindOf(e.target));p.close=e.target.value.slice(0,200);const b=e.target.closest(".card").querySelector('[data-act="finalize"]');if(b)b.disabled=!(ATT.every((x,i)=>p.att.ck[i])&&p.att.sig.trim()&&p.close.trim()&&!p.pom.some(x=>!x.dec));return;}
   if(e.type==="input"){const d=e.target.dataset;if(d.act==="tnx"){const m=cur().meds.find(x=>x.id===d.m)||P(bindOf(e.target)).meds.find(x=>x.id===d.m);m.tn.x=e.target.value.slice(0,80);mark(P(bindOf(e.target)));const cc=e.target.parentNode.querySelector(".cc");if(cc){cc.textContent=m.tn.x.length+" / 80";cc.className="cc"+(m.tn.x.length>=80?" full":"");}}
@@ -549,16 +633,33 @@ function handle(e){
     if(a==="hsave"){const v=parseFloat(g("hcm-"+p.id)),how=g("hhow-"+p.id);if(!(v>=40&&v<=230))p.w.err="Height should be 40 to 230 cm. Was it entered in inches?";else if(p.age>=18&&v<120)p.w.err="Under 120 cm for an adult. Was it entered in inches?";else{p.w.ht={cm:Math.round(v),src:how==="measured"?"Measured now":"Stated now"};log(p,"Height "+v+" cm ("+how+")");}}
     render();return;}
   if(a==="ph"){const ph=p.ph,v=d.v,val=id=>((doc.getElementById(id)||{}).value||"").trim();ph.err="";
-    if(v==="open")ph.st="code";
-    else if(v==="wrong"){ph.st="wrong";log(p,"Link closed: recipient said it reached the wrong person");}
-    else if(v==="code"){if(val("phc-"+p.id).replace(/\D/g,"")===p.code.replace(/\D/g,""))ph.st="dob";else ph.err="That code doesn't match. Ask the nurse for the code again.";}
-    else if(v==="dob"){if(val("phd-"+p.id)===p.dob)ph.st="wt";else ph.err="That date doesn't match our records. Check it and try again.";}
-    else if(v==="wt"){const w=parseFloat(val("phw-"+p.id));if(!(w>40&&w<700)){ph.err="Enter a weight in pounds, or tap Skip.";}else{ph.wt=w;p.w.stated={kg:Math.round(w/2.2046*10)/10,by:p.cgw.toLowerCase()+" via link, "+w+" lb"};log(p,p.cgw+" gave a stated weight on the link: "+p.w.stated.kg+" kg");ph.st="list";}}
-    else if(v==="wtskip")ph.st="list";
-    else if(v==="send"){ph.st="done";applyFamily(p);}
+    const go=st=>{ph.st=st;};
+    if(v==="open")go("open");
+    else if(v==="sendcode"){ph.sentAt=Date.now();ph.otp="";go("code");log(p,"Verification code texted to "+phMask(p));}
+    else if(v==="resend"){ph.sentAt=Date.now();ph.otp="";toast("A new code was sent (trial: same code)");}
+    else if(v==="wrong"){go("wrong");log(p,"Link closed: recipient said it reached the wrong person");}
+    else if(v==="dob"){if(val("phd-"+p.id)===p.dob)go("role");else ph.err="That date doesn't match our records. Check it and try again.";}
+    else if(v==="role")go("intro");
+    else if(v==="callrole"){go("call");log(p,p.cgw+" asked the team to call; nothing shown");p.msgs.push({from:p.cgw+" (link)",t:now(),x:"Not sure how to help. Please call "+phMask(p)+"."});}
+    else if(v==="start"){ph.mode="one";ph.q=phMeds(p).map(m=>m.id);ph.i=0;go("review");}
+    else if(v==="same"){ph.mode="same";phMeds(p).forEach(m=>{if(!ph.cg[m.id])ph.cg[m.id]={a:"yes"};});ph.q=phMeds(p).filter(m=>m.hr).map(m=>m.id);ph.i=0;log(p,p.cgw+" says nothing changed since the last visit");go(ph.q.length?"review":"wt");}
+    else if(v==="list")go("list");
+    else if(v==="rest"){phMeds(p).forEach(m=>{if(!m.hr&&!(ph.cg[m.id]&&ph.cg[m.id].a))ph.cg[m.id]={a:"yes"};});}
+    else if(v==="listdone")go("wt");
+    else if(v==="next"){if(ph.i+1<ph.q.length)ph.i++;else go("wt");}
+    else if(v==="back"){if(ph.i>0)ph.i--;}
+    else if(v==="callmed"){const id=ph.q[ph.i];const c=ph.cg[id]=ph.cg[id]||{};c.call=true;if(!c.a)c.a="unsure";ph.callReq=true;if(ph.i+1<ph.q.length)ph.i++;else go("wt");toast("The team will call about this one");}
+    else if(v==="finish")go("wt");
+    else if(v==="wt"){const w=parseFloat(val("phw-"+p.id));if(!(w>40&&w<700)){ph.err="Enter a weight in pounds, or tap I don't know.";}else{ph.wt=w;p.w.stated={kg:Math.round(w/2.2046*10)/10,by:p.cgw.toLowerCase()+" via link, "+w+" lb · planning only"};log(p,p.cgw+" gave a stated weight on the link: "+p.w.stated.kg+" kg (planning only)");go("extras");}}
+    else if(v==="wtskip")go("extras");
+    else if(v==="send"){go("done");applyFamily(p);}
     render();return;}
-  if(a==="cg"){const c=p.ph.cg[d.m]=p.ph.cg[d.m]||{};c.a=c.a===d.v?"":d.v;if(c.a!=="yes")delete c.ld;render();return;}
-  if(a==="cgld"){const c=p.ph.cg[d.m];c.ld=c.ld===d.v?"":d.v;render();return;}
+  if(a==="phrole"){p.ph.role=d.v;render();return;}
+  if(a==="phex"){const ex=p.ph.ex=p.ph.ex||{};ex[d.v]=!ex[d.v];render();return;}
+  if(a==="phadd"){const el=doc.getElementById("pha-"+p.id),v=(el&&el.value||"").trim();p.ph.err="";if(!v)p.ph.err="Type a medicine name first.";else{p.ph.add=p.ph.add||[];if(p.ph.add.indexOf(v)<0)p.ph.add.push(v);}render();return;}
+  if(a==="phrm"){p.ph.add.splice(+d.v,1);render();return;}
+  if(a==="cgk"){const c=p.ph.cg[d.m]=p.ph.cg[d.m]||{};c[d.k]=c[d.k]===d.v?"":d.v;if(d.k==="a"&&c.a!=="yes"){delete c.day;delete c.tod;delete c.lab;delete c.freq;}if(d.k==="day"&&c.day!=="today"&&c.day!=="yday")delete c.tod;render();return;}
+  if(a==="cgphoto"){const c=p.ph.cg[d.m]=p.ph.cg[d.m]||{};c.photo=!c.photo;render();return;}
   if(a==="pt"){S.cur=d.v;S.sendWarn=false;render();return;}
   if(a==="act"){S.act=d.v;render();return;}
   if(a==="reset"){S.pts=CASES.map(freshCase);render();toast("Cases reset");return;}
@@ -616,6 +717,7 @@ document.addEventListener("pointerdown",e=>{const h=e.target.closest&&e.target.c
 document.addEventListener("pointermove",e=>{if(!mv)return;const w=S.wins[mv.k];w.x=Math.max(0,Math.min(window.innerWidth-120,e.clientX-mv.dx));w.y=Math.max(0,Math.min(window.innerHeight-40,e.clientY-mv.dy));mv.el.style.left=w.x+"px";mv.el.style.top=w.y+"px";});
 document.addEventListener("pointerup",()=>{mv=null;});
 setInterval(()=>{if(Object.keys(POPS).some(k=>POPS[k].closed))render();},1500);
+setInterval(()=>{[document].concat(Object.values(POPS).filter(w=>w&&!w.closed).map(w=>w.document)).forEach(dc=>dc.querySelectorAll("[data-until]").forEach(el=>{const left=Math.ceil((+el.dataset.until-Date.now())/1000);if(left>0)el.textContent="Didn't get it? You can resend in "+left+" s";else if(!el.querySelector("button"))el.innerHTML='<button class="lnk" type="button" data-act="ph" data-v="resend">Resend code</button>';}));},1000);
 render();
 })();
 </script>
