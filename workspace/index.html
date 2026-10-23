@@ -143,6 +143,23 @@ textarea.inp{width:100%;min-height:56px;resize:vertical}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--chrome);color:var(--chrome-ink);padding:8px 14px;border-radius:8px;font-weight:700;z-index:60;box-shadow:var(--shadow)}
 .foot{max-width:1500px;margin:10px auto 0;font-size:12px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* formatted med history note */
+.mhn{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:14px;max-width:820px}
+.mhn h4{margin:0;font-size:12px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted)}
+.mhn .ttl{font-size:17px;font-weight:900;letter-spacing:.4px}
+.mhn .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 18px}
+.mhn .meta div{display:grid;gap:1px}.mhn .meta b{font-size:14px}
+.mhn .sum{background:var(--ott-soft);border-left:5px solid var(--ott);border-radius:6px;padding:10px 12px;font-size:14px;display:grid;gap:4px}
+.mhn .sum small{color:var(--muted);font-size:11.5px}
+.mhn .att{border:1.5px solid var(--good);border-radius:8px;padding:10px 12px;display:grid;gap:5px;font-size:13.5px}
+.mhn ul.src{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:13.5px}
+.mhn ul.src li::before{content:"☐ ";color:var(--muted)}.mhn ul.src li.on::before{content:"☑ ";color:var(--good)}
+.mhn ul.src li:not(.on){color:var(--muted)}
+.mhn .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px}
+.mhn .kv div{display:grid;gap:2px;font-size:13.5px}
+.mhn .chg{font-size:12px;color:var(--warn);font-weight:700}
+.mhn .disc{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 </style>
 
 <div class="app" id="app">
@@ -290,6 +307,7 @@ function sig(m){return m.stopped||m.tn.a==="Stopped / not taking"?"Not taking":v
 function noteText(p){const L=[];const pd=["10/22/2026"];
   const by=(p.hist.by||[]),rphOnly=by.length&&by.indexOf("Technician")<0;
   if(p.fin){L.push(p.att.sig+" "+pd+" "+p.fin,"",rphOnly?"Medication history obtained and reviewed by "+(by.indexOf("Pharmacist")>=0?"the pharmacist":by.join(" and ").toLowerCase())+(by.indexOf("Pharmacist")>=0?"; no pharmacy technician available.":"; reviewed by the pharmacist."):ATT_TEXT,"","Clarifications and points to emphasize are noted as: "+p.close,"",p.att.sig,"","");}
+  L.push("SUMMARY: "+summaryText(p),"");
   L.push("PHARMACY MEDICATION HISTORY","","Completed by: "+(by.length?by.map(x=>"ED "+x.toLowerCase()).join(", "):"not started")+" (trial)"+(p.sent||p.fin?"":" · in progress"),"","Pharmacy reviewed the patient's medications on "+pd+". Please see the updated home medication list for "+p.name+" (trial case), according to:","");
   SRCS.forEach(x=>L.push((p.hist.src[x]?"[x] ":"[ ] ")+x+(x==="Family/Caregiver"&&p.hist.src[x]?": "+p.contact.toLowerCase():"")));
   L.push("","Interview notes:","\t"+(p.hist.inote||"None"),"","Home Medications","Medication\tSig");
@@ -298,6 +316,34 @@ function noteText(p){const L=[];const pd=["10/22/2026"];
   if(p.pom.length){L.push("","Patient's own medications:");p.pom.forEach(x=>L.push(x.n+": "+(x.dec==="accept"?"accepted, sent to pharmacy for identification":x.dec==="reject"?"not used ("+x.reason.toLowerCase()+"), "+x.disp.toLowerCase():"decision pending")));}
   L.push("","Retail pharmacy (phone number): "+p.pharm,"","Primary care provider (phone number): "+p.pcp,"","Allergies: "+p.allergy,"","Recent anti-infective use: "+p.abx,"","At home, medications are managed by: "+(p.hist.managed||"not documented"),"","Please call the pharmacy department if you have any questions.","",BPMH);
   return L.join("\n");}
+
+/* ---------- formatted note + summary ---------- */
+function priorChange(m){const pta=m.src.pta;if(!pta||m.stopped)return"";const cl=x=>norm(x).replace(/\(.*?\)/g,"").replace(/\s+/g," ").trim(),a=cl(pta),b=cl(value(m));return a&&b&&a!==b&&!/\d{4} admission/.test(pta)?"Prior list: "+pta.split(" · ")[0]:"";}
+function summaryText(p){const act=p.meds.filter(m=>!(m.stopped||m.tn.a==="Stopped / not taking")),stop=p.meds.filter(m=>m.stopped||m.tn.a==="Stopped / not taking"),out=[];
+  out.push(act.length+" home medication"+(act.length===1?"":"s")+(p.fin?" verified":" so far")+(stop.length?"; "+stop.length+" no longer taken ("+stop.map(m=>m.name.toLowerCase()).join(", ")+")":"")+".");
+  const ch=act.filter(priorChange);if(ch.length)out.push("Changed from the prior list: "+ch.map(m=>m.name.toLowerCase()+" now "+value(m)+" (was "+m.src.pta.split(" · ")[0]+")").join("; ")+".");
+  const nw=act.filter(m=>!m.src.pta);if(nw.length)out.push("Not on the prior list: "+nw.map(m=>m.name.toLowerCase()).join(", ")+".");
+  const hr=act.filter(m=>m.hr);if(hr.length)out.push("High-risk: "+hr.map(m=>m.name.toLowerCase()+(m.ld?(m.ld.k==="unk"?" last dose unknown (patient doesn't know)":" last taken "+m.ld.l.toLowerCase()):" last dose not documented")).join("; ")+".");
+  const fl=act.filter(m=>FLAGS.some(([f,x])=>x&&m.tn.f[f])||m.tn.a==="Not taking, but should be");if(fl.length)out.push("Flagged: "+fl.map(m=>m.name.toLowerCase()+" ("+(FLAGS.filter(([f,x])=>x&&m.tn.f[f]).map(([f])=>f.toLowerCase()).concat(m.tn.a==="Not taking, but should be"?["not taking, but should be"]:[]).join(", "))+")").join("; ")+".");
+  if(p.pom.length){const acc=p.pom.filter(x=>x.dec==="accept").length,rej=p.pom.filter(x=>x.dec==="reject").length,pen=p.pom.length-acc-rej;out.push("Own medications: "+[acc?acc+" accepted":"",rej?rej+" not used":"",pen?pen+" pending":""].filter(Boolean).join(", ")+".");}
+  if(/^yes/i.test(p.abx))out.push("Recent anti-infective: "+p.abx.replace(/^yes · /i,"")+".");
+  return out.join(" ");}
+function medStatus(m){if(m.stopped||m.tn.a==="Stopped / not taking")return"Not taking";return(m.matched?"Verified":"Not yet verified")+(m.ld?(m.ld.k==="unk"?" · last dose unknown":" · last taken "+m.ld.l.toLowerCase()):"");}
+function noteHTML(p){const by=p.hist.by||[],rphOnly=by.length&&by.indexOf("Technician")<0,act=p.meds.filter(m=>!(m.stopped||m.tn.a==="Stopped / not taking")),stop=p.meds.filter(m=>m.stopped||m.tn.a==="Stopped / not taking");
+  let h='<article class="mhn" aria-label="Pharmacy medication history note"><div class="ttl">PHARMACY MEDICATION HISTORY</div><div><b style="font-size:15px">'+esc(p.name)+' (trial case)</b> · <span class="tag '+(p.fin?"t-good":"t-warn")+'">'+(p.fin?"Completed":"In progress")+'</span></div>';
+  h+='<div class="meta"><div><h4>Reviewed</h4><b>10/22/2026</b></div><div><h4>Completed by</h4><b>'+esc(by.length?by.map(x=>"ED "+x.toLowerCase()).join(", "):"Not started")+' (trial)</b></div>'+(p.fin?'<div><h4>Verified by</h4><b>'+esc(p.att.sig)+" · "+esc(p.fin)+"</b></div>":"")+"</div>";
+  h+='<div class="sum"><h4>Summary</h4><span>'+esc(summaryText(p))+'</span><small>Built automatically from the medication list below. The pharmacist reviews it before signing.</small></div>';
+  if(p.fin)h+='<div class="att"><h4>Pharmacist review</h4><span>'+esc(rphOnly?"Medication history obtained and reviewed by the pharmacist; no pharmacy technician available.":ATT_TEXT)+'</span><span>Clarifications and points to emphasize are noted as: <b>'+esc(p.close)+"</b></span><span>"+esc(p.att.sig)+" · 10/22/2026 "+esc(p.fin)+"</span></div>";
+  h+='<div class="muted" style="font-size:13.5px">Pharmacy reviewed the patient\'s medications on 10/22/2026. Please see the updated home medication list for '+esc(p.name)+' (trial case), according to the sources checked below.</div>';
+  h+='<div><h4>Sources</h4><ul class="src">'+SRCS.map(x=>'<li class="'+(p.hist.src[x]?"on":"")+'">'+esc(x)+(x==="Family/Caregiver"&&p.hist.src[x]?": "+esc(p.contact.toLowerCase()):"")+"</li>").join("")+"</ul></div>";
+  h+='<div><h4>Interview notes</h4><div style="font-size:13.5px">'+esc(p.hist.inote||"None")+"</div></div>";
+  h+='<div><h4>Home medications</h4><div class="tw"><table class="t"><thead><tr><th>Medication</th><th>Sig</th><th>Status</th></tr></thead><tbody>'+act.map(m=>{const pc=priorChange(m),fl=FLAGS.filter(([f,x])=>x&&m.tn.f[f]).map(([f])=>f);return"<tr><td><b>"+esc(m.name)+"</b>"+(m.hr?' <span class="tag t-bad">'+esc(HRL(m.name))+"</span>":"")+"</td><td>"+esc(value(m))+(pc?'<div class="chg">'+esc(pc)+"</div>":"")+(fl.length?'<div class="chg">'+esc(fl.join(", "))+"</div>":"")+'</td><td><span class="tag '+(m.matched&&!(m.hr&&m.ld&&m.ld.k==="unk")?"t-good":"t-warn")+'">'+esc(medStatus(m))+"</span></td></tr>";}).join("")+"</tbody></table></div></div>";
+  if(stop.length)h+='<div><h4>No longer taking</h4><div style="font-size:13.5px">'+stop.map(m=>esc(m.name)).join(", ")+"</div></div>";
+  if(p.pom.length)h+='<div><h4>Patient\'s own medications</h4><div class="tw"><table class="t"><thead><tr><th>Item brought in</th><th>Decision</th></tr></thead><tbody>'+p.pom.map(x=>"<tr><td>"+esc(x.n)+"</td><td>"+esc(x.dec==="accept"?"Accepted · sent to pharmacy to identify":x.dec==="reject"?"Not used · "+x.reason+" · "+x.disp+(x.ndone?" (done)":""):"Decision pending")+"</td></tr>").join("")+"</tbody></table></div></div>";
+  const [ph,pn]=p.pharm.split(" · "),[dr,dn]=p.pcp.split(" · ");
+  h+='<div class="kv"><div><h4>Retail pharmacy</h4><span>'+esc(ph)+"<br>"+esc(pn||"")+'</span></div><div><h4>Primary care provider</h4><span>'+esc(dr)+"<br>"+esc(dn||"")+'</span></div><div><h4>Allergies</h4><span>'+esc(p.allergy)+'</span></div><div><h4>Recent anti-infective use</h4><span>'+esc(p.abx.charAt(0).toUpperCase()+p.abx.slice(1))+'</span></div><div><h4>Medications managed at home by</h4><span>'+esc(p.hist.managed||"Not documented")+"</span></div></div>";
+  h+='<div style="font-size:13.5px">Please call the pharmacy department if you have any questions.</div><div class="disc">'+esc(BPMH)+"</div></article>";return h;}
+
 /* ---------- panel renderers (return HTML) ---------- */
 function pMeds(p){const r=S.role;
   const open=p.meds.filter(m=>!(m.matched||m.stopped)).sort((a,b)=>(status(b)[1]==="t-bad")-(status(a)[1]==="t-bad")),closed=p.meds.filter(m=>m.matched||m.stopped);
@@ -328,7 +374,7 @@ function pPom(p){if(!p.pom.length)return'<div class="muted">Nothing brought in.<
     else if(x.dec==="accept")h+='<span class="tag t-good">Accepted · sent to pharmacy to identify and label</span>';
     else h+='<div><span class="tag">Not used · '+esc(x.reason)+'</span></div><div class="row"><b>Nurse:</b> '+esc(x.disp)+(x.ndone?' <span class="tag t-good">Done</span>':S.role==="rn"?' <button class="btn sm pri" type="button" data-act="pomdone" data-i="'+i+'">Mark done</button>':' <span class="tag t-warn">Nurse not done yet</span>')+"</div>";
     return h+"</div>";}).join("");}
-function pNote(p){return'<div class="row"><span class="tag '+recState(p)[1]+'">'+esc(recState(p)[0])+'</span><button class="btn sm" type="button" data-act="copynote">Copy note</button></div><div class="note">'+esc(noteText(p))+"</div>";}
+function pNote(p){return'<div class="row"><span class="tag '+recState(p)[1]+'">'+esc(recState(p)[0])+'</span><button class="btn sm" type="button" data-act="copynote">Copy as text for the EHR</button></div>'+noteHTML(p);}
 function pScript(p){return'<div class="script"><b>Trial goal:</b> '+esc(p.goal)+'</div><div class="script"><b>What the patient or family tells you when asked</b><ul>'+p.script.map(s=>"<li>"+esc(s)+"</li>").join("")+"</ul></div>";}
 function pPrelim(p){return'<div class="alert '+recState(p)[1]+'"><b>'+esc(recState(p)[0])+".</b> "+(p.fin?"Order from Admission med rec in the chart.":"Check each line's status before ordering.")+'</div><div class="tw"><table class="t"><thead><tr><th>Medication</th><th>How taken</th><th>Last dose · next</th><th>Status</th></tr></thead><tbody>'+p.meds.map(m=>{const st=status(m),nd=nextDue(p,m);return"<tr><td><b>"+esc(m.name)+"</b></td><td>"+esc(m.stopped?"Not taking":isConflict(m)?"? "+doseVals(m).join(" vs "):value(m))+"</td><td>"+(m.ld?esc(m.ld.l):needLD(m)?'<span class="tag t-warn">Not documented</span>':"")+(nd?'<br><span class="tag '+nd.t+'">'+esc(nd.x)+"</span>":"")+'</td><td><span class="tag '+st[1]+'">'+st[0]+"</span></td></tr>";}).join("")+"</tbody></table></div>";}
 function pNurse(p){const today=p.meds.filter(m=>m.ld&&/morning|midday|evening/i.test(m.ld.l)),pend=p.pom.filter(x=>x.dec==="reject"&&!x.ndone),wait=p.pom.filter(x=>!x.dec);
@@ -357,7 +403,7 @@ function popOut(k){let win=null;try{win=window.open("","ottws_"+k,"width=640,hei
 /* ---------- EHR native activities ---------- */
 function renderPTA(p){return'<div class="card"><h3>Prior to admission medications</h3><div class="row"><span class="tag '+recState(p)[1]+'">Source: Ottley · '+esc(recState(p)[0])+"</span></div>"+pPrelim(p).replace(/^<div class="alert[^>]*>.*?<\/div>/,"")+"</div>";}
 function renderMedRec(p){const md=S.role==="md";return'<div class="card"><h3>Admission medication reconciliation</h3><div class="muted">Orders are placed here in the chart. Ottley supplies the list, the flags and the last doses; the provider decides.</div>'+(p.fin?'<div class="alert t-good"><b>Pharmacist medication reconciliation complete.</b> Signed '+esc(p.att.sig)+" at "+esc(p.fin)+".</div>":'<div class="alert t-warn"><b>Preliminary.</b> Not yet reconciled by a pharmacist. Red lines: don\'t order from them yet.</div>')+'<div class="tw"><table class="t"><thead><tr><th>Home medication</th><th>Ottley</th><th>Order decision</th></tr></thead><tbody>'+p.meds.map(m=>{const st=status(m),nd=nextDue(p,m);return"<tr><td><b>"+esc(m.name)+"</b><br>"+esc(m.stopped?"Not taking":isConflict(m)?"? "+doseVals(m).join(" vs "):value(m))+'</td><td><span class="tag '+st[1]+'">'+st[0]+"</span>"+(m.ld?'<br><span class="muted">Last dose '+esc(m.ld.l.toLowerCase())+"</span>":needLD(m)?'<br><span class="tag t-warn">Last dose not documented</span>':"")+(nd?'<br><span class="tag '+nd.t+'">'+esc(nd.x)+"</span>":"")+'</td><td><div class="seg" role="group" aria-label="Decision for '+esc(m.name)+'">'+["Continue","Hold","Stop"].map(d=>'<button type="button" data-act="dec" data-m="'+m.id+'" data-v="'+d+'" aria-pressed="'+(m.dec===d)+'"'+(md&&!m.stopped?"":" disabled")+">"+d+"</button>").join("")+"</div></td></tr>";}).join("")+"</tbody></table></div>"+(md?"":'<div class="muted">Sign in as ED provider to make order decisions.</div>')+"</div>";}
-function renderNotes(p){return'<div class="card"><h3>Notes</h3>'+(p.fin?'<div class="row"><b>Pharmacy medication history</b><span class="muted">Signed '+esc(p.fin)+" · "+esc(p.att.sig)+"</span></div><div class=\"note\">"+esc(noteText(p))+"</div>":'<div class="muted">No pharmacy medication history yet. It appears here when the pharmacist finalizes in Ottley.</div>')+"</div>";}
+function renderNotes(p){return'<div class="card"><h3>Notes</h3>'+(p.fin?'<div class="row"><b>Pharmacy medication history</b><span class="muted">Signed '+esc(p.fin)+" · "+esc(p.att.sig)+'</span><button class="btn sm" type="button" data-act="copynote">Copy as text</button></div>'+noteHTML(p):'<div class="muted">No pharmacy medication history yet. It appears here when the pharmacist completes the medication reconciliation in Ottley.</div>')+"</div>";}
 function renderLog(p){return'<div class="card"><h3>Activity log</h3>'+(p.log.length?'<div class="tw"><table class="t"><tbody>'+p.log.slice().reverse().map(l=>'<tr><td class="mono">'+esc(l.t)+"</td><td><b>"+esc(l.who)+"</b></td><td>"+esc(l.x)+"</td></tr>").join("")+"</tbody></table></div>":'<div class="muted">Nothing yet.</div>')+"</div>";}
 const FBQ=["What did you have to look up or retype that Ottley should have shown you?","Where did you hesitate or click the wrong thing?","Compared with how you do it now, was this faster, slower or about the same? At which step?","Did anything look verified or final when it wasn't?","What one thing would stop you from using this on a real shift?"];
 function renderFB(p){const key=S.role+"|"+p.id,f=S.fb[key]||{};const mins=p.opened?Math.max(1,Math.round((Date.now()-p.opened)/60000)):null;
