@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
 <style id="mainStyle">
+[hidden]{display:none!important}
 /* Layout: a simulated EHR shell (cool slate chrome, left track board, patient banner, activity tabs).
    The Ottley activity is a tiling workspace: panels on a grid that can be dragged, floated, or popped out to another monitor. */
 :root{
@@ -628,8 +629,7 @@ function renderFloats(){const p=cur();$("floats").innerHTML=Object.keys(S.wins).
 function renderPops(){Object.keys(POPS).forEach(k=>{const win=POPS[k];if(!win||win.closed){delete POPS[k];if(S.wins[k].mode==="pop"){S.wins[k].mode="tile";S.wins[k].order=99;}return;}const root=win.document.getElementById("root");if(root){root.innerHTML='<section class="win" style="min-height:calc(100vh - 24px)">'+winHTML(k,cur(),"pop")+"</section>";win.document.title=PANELS[k]+" · "+P(S.wins[k].pt||S.cur).name;}});}
 function popOut(k){let win=null;try{win=window.open("","ottws_"+k,"width=640,height=760");}catch(e){win=null;}
   if(!win){S.wins[k].mode="float";toast("This browser blocked a new window, so the panel floats instead. Use the GitHub copy for real pop-outs.");return;}
-  const css=$("mainStyle").textContent;win.document.open();win.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(PANELS[k])+'</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap"><style>
-[hidden]{display:none!important}'+css+'</style></head><body style="padding:12px"><div id="root"></div></body></html>');win.document.close();
+  const css=$("mainStyle").textContent;win.document.open();win.document.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(PANELS[k])+'</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap"><style>'+css+'</style></head><body style="padding:12px"><div id="root"></div></body></html>');win.document.close();
   try{const th=document.documentElement.getAttribute("data-theme");if(th)win.document.documentElement.setAttribute("data-theme",th);}catch(e){}
   ["click","input","change","keydown"].forEach(ev=>win.document.addEventListener(ev,handle));
   win.addEventListener("beforeunload",()=>{setTimeout(()=>{if(S.wins[k].mode==="pop"){S.wins[k].mode="tile";S.wins[k].order=99;delete POPS[k];render();}},50);});
